@@ -1,0 +1,341 @@
+@model DoAn.ViewModels.Profile.ProfileViewModel
+
+@{
+    ViewData["Title"] = Model.FullName;
+
+    var coverStyle = string.IsNullOrWhiteSpace(Model.CoverUrl)
+        ? string.Empty
+        : $"background-image:url('{Model.CoverUrl}')";
+}
+
+<link rel="stylesheet"
+      href="~/css/profile.css"
+      asp-append-version="true" />
+<link rel="stylesheet"
+      href="~/css/post-card.css"
+      asp-append-version="true" />
+
+<form id="ajax-token-form" class="d-none" method="post">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="profile-page">
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success alert-dismissible fade show profile-alert"
+             role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            @successMessage
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Đóng">
+            </button>
+        </div>
+    }
+
+    <section class="profile-hero">
+        <div class="profile-cover" style="@coverStyle">
+            @if (string.IsNullOrWhiteSpace(Model.CoverUrl))
+            {
+                <div class="cover-placeholder">
+                    <i class="bi bi-images"></i>
+                </div>
+            }
+        </div>
+
+        <div class="profile-summary">
+            <div class="profile-avatar-wrap">
+                @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+                {
+                    <img src="@Model.AvatarUrl"
+                         class="profile-avatar"
+                         alt="Ảnh đại diện của @Model.FullName"
+                         onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');" />
+
+                    <div class="profile-avatar profile-avatar-fallback d-none">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                }
+                else
+                {
+                    <div class="profile-avatar profile-avatar-fallback">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                }
+            </div>
+
+            <div class="profile-identity">
+                <h1>@Model.FullName</h1>
+                <p>@@@Model.Username</p>
+
+                <div class="profile-stats">
+                    <a asp-action="Index" asp-route-id="@Model.Id">
+                        <strong>@Model.PostCount</strong>
+                        <span>bài viết</span>
+                    </a>
+
+                    <a asp-action="Friends" asp-route-id="@Model.Id">
+                        <strong>@Model.FriendCount</strong>
+                        <span>bạn bè</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                @if (Model.IsOwnProfile)
+                {
+                    <a asp-action="Edit" class="profile-action primary">
+                        <i class="bi bi-pencil-square"></i>
+                        Chỉnh sửa hồ sơ
+                    </a>
+
+                    <a asp-controller="Post"
+                       asp-action="Create"
+                       class="profile-action secondary">
+                        <i class="bi bi-plus-circle"></i>
+                        Tạo bài viết
+                    </a>
+
+                }
+                else if (Model.IsFriend)
+                {
+                    <a asp-action="Friends"
+                       asp-route-id="@Model.Id"
+                       class="profile-action success">
+                        <i class="bi bi-person-check-fill"></i>
+                        Bạn bè
+                    </a>
+
+                    <form asp-controller="Friend"
+                          asp-action="Remove"
+                          method="post"
+                          onsubmit="return confirm('Bạn có chắc muốn hủy kết bạn?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="friendId" value="@Model.Id" />
+                        <button type="submit" class="profile-action danger">
+                            <i class="bi bi-person-dash"></i>
+                            Hủy kết bạn
+                        </button>
+                    </form>
+                }
+                else if (Model.HasReceivedFriendRequest && Model.ReceivedRequestId.HasValue)
+                {
+                    <form asp-controller="Friend" asp-action="Accept" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.ReceivedRequestId.Value" />
+                        <button type="submit" class="profile-action success">
+                            <i class="bi bi-person-check"></i>
+                            Chấp nhận
+                        </button>
+                    </form>
+
+                    <form asp-controller="Friend" asp-action="Reject" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.ReceivedRequestId.Value" />
+                        <button type="submit" class="profile-action danger">
+                            <i class="bi bi-person-x"></i>
+                            Từ chối
+                        </button>
+                    </form>
+                }
+                else if (Model.HasSentFriendRequest)
+                {
+                    <button type="button" class="profile-action disabled" disabled>
+                        <i class="bi bi-clock-history"></i>
+                        Đã gửi lời mời
+                    </button>
+                }
+                else
+                {
+                    <form asp-controller="Friend" asp-action="Send" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="receiverId" value="@Model.Id" />
+                        <button type="submit" class="profile-action primary">
+                            <i class="bi bi-person-plus"></i>
+                            Kết bạn
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <nav class="profile-nav">
+            <a asp-action="Index"
+               asp-route-id="@Model.Id"
+               class="active">
+                <i class="bi bi-file-earmark-post"></i>
+                Bài viết
+            </a>
+
+            <a asp-action="Friends" asp-route-id="@Model.Id">
+                <i class="bi bi-people"></i>
+                Bạn bè
+            </a>
+
+            <a asp-action="Photos" asp-route-id="@Model.Id">
+                <i class="bi bi-images"></i>
+                Ảnh
+            </a>
+        </nav>
+    </section>
+
+    <div class="profile-grid">
+        <aside class="profile-sidebar">
+            <section class="profile-card">
+                <h2>
+                    <i class="bi bi-info-circle"></i>
+                    Giới thiệu
+                </h2>
+
+                <p class="bio">
+                    @(string.IsNullOrWhiteSpace(Model.Bio)
+                        ? "Chưa có phần giới thiệu."
+                        : Model.Bio)
+                </p>
+
+                <div class="about-row">
+                    <i class="bi bi-envelope"></i>
+                    <span>@Model.Email</span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                {
+                    <div class="about-row">
+                        <i class="bi bi-telephone"></i>
+                        <span>@Model.Phone</span>
+                    </div>
+                }
+
+                <div class="about-row">
+                    <i class="bi bi-calendar3"></i>
+                    <span>Tham gia từ @Model.CreatedAt.ToLocalTime().ToString("MM/yyyy")</span>
+                </div>
+            </section>
+
+            @if (Model.IsOwnProfile)
+            {
+                <section class="profile-card profile-shortcuts">
+                    <h2>
+                        <i class="bi bi-lightning-charge"></i>
+                        Truy cập nhanh
+                    </h2>
+
+                    <a asp-controller="Post" asp-action="Create">
+                        <i class="bi bi-plus-circle"></i>
+                        Tạo bài viết mới
+                    </a>
+
+                    <a asp-action="Friends" asp-route-id="@Model.Id">
+                        <i class="bi bi-people"></i>
+                        Xem danh sách bạn bè
+                    </a>
+
+                    <a asp-action="Photos" asp-route-id="@Model.Id">
+                        <i class="bi bi-images"></i>
+                        Xem ảnh đã đăng
+                    </a>
+                </section>
+            }
+        </aside>
+
+        <section class="profile-feed">
+            @if (Model.IsOwnProfile)
+            {
+                <div class="profile-card create-post-card">
+                    <div class="mini-avatar">
+                        @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+                        {
+                            <img src="@Model.AvatarUrl"
+                                 alt="Ảnh đại diện"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');" />
+                            <span class="d-none"><i class="bi bi-person-fill"></i></span>
+                        }
+                        else
+                        {
+                            <span><i class="bi bi-person-fill"></i></span>
+                        }
+                    </div>
+
+                    <a asp-controller="Post"
+                       asp-action="Create"
+                       class="create-post-prompt">
+                        Bạn đang nghĩ gì?
+                    </a>
+
+                    <a asp-controller="Post"
+                       asp-action="Create"
+                       class="create-post-icon-button"
+                       title="Tạo bài viết">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </div>
+            }
+
+            @if (Model.Posts == null || Model.Posts.Count == 0)
+            {
+                <div class="profile-card empty-state">
+                    <i class="bi bi-file-earmark-post"></i>
+                    <h3>Chưa có bài viết</h3>
+                    <p>
+                        @(Model.IsOwnProfile
+                            ? "Hãy chia sẻ bài viết đầu tiên của bạn."
+                            : "Người dùng này chưa đăng bài viết nào.")
+                    </p>
+
+                    @if (Model.IsOwnProfile)
+                    {
+                        <a asp-controller="Post"
+                           asp-action="Create"
+                           class="profile-action primary">
+                            <i class="bi bi-plus-circle"></i>
+                            Tạo bài viết
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="profile-post-wrapper">
+                        @if (Model.IsOwnProfile)
+                        {
+                            <div class="profile-post-tools">
+                                <span>
+                                    <i class="bi bi-shield-check"></i>
+                                    Bài viết của bạn
+                                </span>
+
+                                <div>
+                                    <a asp-controller="Post"
+                                       asp-action="Edit"
+                                       asp-route-id="@post.Id"
+                                       title="Chỉnh sửa bài viết">
+                                        <i class="bi bi-pencil-square"></i>
+                                        Sửa
+                                    </a>
+
+                                    <form asp-controller="Post"
+                                          asp-action="Delete"
+                                          method="post"
+                                          onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@post.Id" />
+                                        <button type="submit" title="Xóa bài viết">
+                                            <i class="bi bi-trash3"></i>
+                                            Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+
+                        <partial name="~/Views/Post/_PostCard.cshtml"
+                                 model="post" />
+                    </div>
+                }
+            }
+        </section>
+    </div>
+</div>

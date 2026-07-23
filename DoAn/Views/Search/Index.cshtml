@@ -1,0 +1,217 @@
+@model DoAn.ViewModels.Search.SearchViewModel
+
+@{
+    ViewData["Title"] = "Tìm kiếm";
+}
+
+<link rel="stylesheet"
+      href="~/css/search.css"
+      asp-append-version="true" />
+
+<link rel="stylesheet"
+      href="~/css/post-card.css"
+      asp-append-version="true" />
+
+<form id="ajax-token-form"
+      method="post"
+      class="d-none">
+
+    @Html.AntiForgeryToken()
+
+</form>
+
+<div class="search-page">
+
+    <header class="search-page-header">
+
+        <div>
+
+            <span class="search-eyebrow">
+                TÌM KIẾM
+            </span>
+
+            <h1>
+                Kết quả tìm kiếm
+            </h1>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Query))
+            {
+                <p>
+                    Tìm thấy
+                    <strong>@Model.TotalResults</strong>
+                    kết quả cho
+                    <strong>“@Model.Query”</strong>
+                </p>
+            }
+            else
+            {
+                <p>
+                    Nhập tên người dùng hoặc nội dung bài viết.
+                </p>
+            }
+
+        </div>
+
+    </header>
+
+    @if (string.IsNullOrWhiteSpace(Model.Query))
+    {
+        <section class="search-empty-state">
+
+            <i class="bi bi-search"></i>
+
+            <h2>
+                Bắt đầu tìm kiếm
+            </h2>
+
+            <p>
+                Bạn có thể tìm theo tên, username,
+                email hoặc nội dung bài viết.
+            </p>
+
+        </section>
+    }
+    else if (Model.TotalResults == 0)
+    {
+        <section class="search-empty-state">
+
+            <i class="bi bi-search-heart"></i>
+
+            <h2>
+                Không tìm thấy kết quả
+            </h2>
+
+            <p>
+                Hãy thử một từ khóa khác.
+            </p>
+
+        </section>
+    }
+    else
+    {
+        <!-- Người dùng -->
+
+        <section class="search-section">
+
+            <div class="search-section-heading">
+
+                <div>
+
+                    <h2>
+                        <i class="bi bi-people-fill"></i>
+                        Người dùng
+                    </h2>
+
+                    <span>
+                        @Model.Users.Count kết quả
+                    </span>
+
+                </div>
+
+            </div>
+
+            @if (Model.Users.Any())
+            {
+                <div class="search-user-grid">
+
+                    @foreach (var user in Model.Users)
+                    {
+                        <a asp-controller="Profile"
+                           asp-action="Index"
+                           asp-route-id="@user.Id"
+                           class="search-user-card">
+
+                            <span class="search-user-avatar">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                                    user.AvatarUrl))
+                                {
+                                    <img src="@user.AvatarUrl"
+                                         alt="@user.FullName" />
+                                }
+                                else
+                                {
+                                    <i class="bi bi-person-fill"></i>
+                                }
+
+                            </span>
+
+                            <span class="search-user-info">
+
+                                <strong>
+                                    @user.FullName
+                                </strong>
+
+                                <small>
+                                    @@@user.Username
+                                </small>
+
+                                @if (!string.IsNullOrWhiteSpace(user.Bio))
+                                {
+                                    <span class="search-user-bio">
+                                        @user.Bio
+                                    </span>
+                                }
+
+                            </span>
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </a>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="search-section-empty">
+                    Không tìm thấy người dùng phù hợp.
+                </div>
+            }
+
+        </section>
+
+        <!-- Bài viết -->
+
+        <section class="search-section">
+
+            <div class="search-section-heading">
+
+                <div>
+
+                    <h2>
+                        <i class="bi bi-file-earmark-post-fill"></i>
+                        Bài viết
+                    </h2>
+
+                    <span>
+                        @Model.Posts.Count kết quả
+                    </span>
+
+                </div>
+
+            </div>
+
+            @if (Model.Posts.Any())
+            {
+                <div class="search-post-list">
+
+                    @foreach (var post in Model.Posts)
+                    {
+                        <partial name="~/Views/Post/_PostCard.cshtml"
+                                 model="post" />
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="search-section-empty">
+                    Không tìm thấy bài viết phù hợp.
+                </div>
+            }
+
+        </section>
+    }
+
+</div>

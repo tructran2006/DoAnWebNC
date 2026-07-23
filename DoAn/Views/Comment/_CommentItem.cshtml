@@ -1,0 +1,77 @@
+@using System.Security.Claims
+@model DoAn.ViewModels.Post.CommentItemViewModel
+
+@{
+    int.TryParse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier),
+        out var currentUserId);
+}
+
+<article class="comment-item">
+    <a asp-controller="Profile"
+       asp-action="Index"
+       asp-route-id="@Model.UserId"
+       class="comment-avatar-link"
+       aria-label="Xem hồ sơ của @Model.FullName">
+
+        @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+        {
+            <img src="@Model.AvatarUrl"
+                 alt="Ảnh đại diện của @Model.FullName"
+                 class="comment-avatar-image"
+                 loading="lazy"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');" />
+
+            <span class="comment-avatar-fallback d-none">
+                <i class="bi bi-person-fill"></i>
+            </span>
+        }
+        else
+        {
+            <span class="comment-avatar-fallback">
+                <i class="bi bi-person-fill"></i>
+            </span>
+        }
+    </a>
+
+    <div class="comment-main">
+        <div class="comment-bubble">
+            <div class="comment-bubble-header">
+                <a asp-controller="Profile"
+                   asp-action="Index"
+                   asp-route-id="@Model.UserId"
+                   class="comment-author">
+                    @(string.IsNullOrWhiteSpace(Model.FullName)
+                        ? "Người dùng"
+                        : Model.FullName)
+                </a>
+
+                @if (currentUserId == Model.UserId)
+                {
+                    <form asp-controller="Comment"
+                          asp-action="Delete"
+                          method="post"
+                          class="comment-delete-form"
+                          onsubmit="return confirm('Bạn có chắc muốn xóa bình luận này?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="postId" value="@ViewBag.PostId" />
+
+                        <button type="submit"
+                                class="comment-delete-button"
+                                title="Xóa bình luận">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </form>
+                }
+            </div>
+
+            <div class="comment-content">@Model.Content.Trim()</div>
+        </div>
+
+        <div class="comment-meta">
+            <i class="bi bi-clock"></i>
+            <span>@(Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</span>
+        </div>
+    </div>
+</article>

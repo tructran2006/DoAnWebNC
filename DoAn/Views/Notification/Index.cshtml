@@ -1,0 +1,242 @@
+﻿@model List<DoAn.Models.Notification>
+
+@{
+    ViewData["Title"] = "Thông báo";
+
+    int unreadCount = ViewBag.UnreadCount is int count
+        ? count
+        : 0;
+}
+
+<link rel="stylesheet"
+      href="~/css/notification.css"
+      asp-append-version="true" />
+
+<div class="notification-page">
+
+    <section class="notification-panel">
+
+        <header class="notification-header">
+
+            <div class="notification-heading">
+
+                <div class="notification-heading-icon">
+                    <i class="bi bi-bell-fill"></i>
+                </div>
+
+                <div>
+                    <h1>Thông báo</h1>
+
+                    <p>
+                        @if (unreadCount > 0)
+                        {
+                            <span>
+                                Bạn có @unreadCount thông báo chưa đọc.
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                Bạn đã xem tất cả thông báo.
+                            </span>
+                        }
+                    </p>
+                </div>
+
+            </div>
+
+            @if (Model.Count > 0)
+            {
+                <div class="notification-header-actions">
+
+                    @if (unreadCount > 0)
+                    {
+                        <form asp-controller="Notification"
+                              asp-action="MarkAllAsRead"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="notification-secondary-btn">
+
+                                <i class="bi bi-check2-all"></i>
+
+                                Đánh dấu đã đọc
+
+                            </button>
+
+                        </form>
+                    }
+
+                    <form asp-controller="Notification"
+                          asp-action="DeleteAll"
+                          method="post"
+                          onsubmit="return confirm('Bạn có chắc muốn xóa tất cả thông báo?');">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="notification-danger-btn">
+
+                            <i class="bi bi-trash3"></i>
+
+                            Xóa tất cả
+
+                        </button>
+
+                    </form>
+
+                </div>
+            }
+
+        </header>
+
+        @if (Model.Count == 0)
+        {
+            <div class="notification-empty">
+
+                <div class="notification-empty-icon">
+                    <i class="bi bi-bell-slash"></i>
+                </div>
+
+                <h2>Chưa có thông báo</h2>
+
+                <p>
+                    Khi có người thích, bình luận hoặc gửi lời mời kết bạn,
+                    thông báo sẽ xuất hiện tại đây.
+                </p>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="notification-primary-btn">
+
+                    <i class="bi bi-house-door"></i>
+
+                    Về trang chủ
+
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="notification-list">
+
+                @foreach (var item in Model)
+                {
+                    string iconClass = item.Type switch
+                    {
+                        "Like" => "bi-heart-fill",
+                        "Comment" => "bi-chat-dots-fill",
+                        "FriendRequest" => "bi-person-plus-fill",
+                        "FriendAccepted" => "bi-person-check-fill",
+                        _ => "bi-bell-fill"
+                    };
+
+                    string typeClass = item.Type switch
+                    {
+                        "Like" => "type-like",
+                        "Comment" => "type-comment",
+                        "FriendRequest" => "type-friend-request",
+                        "FriendAccepted" => "type-friend-accepted",
+                        _ => "type-default"
+                    };
+
+                    <article class="notification-item @(item.IsRead ? "" : "unread")">
+
+                        <a asp-controller="Notification"
+                           asp-action="Read"
+                           asp-route-id="@item.Id"
+                           class="notification-main-link">
+
+                            <div class="notification-avatar">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                                        item.ActorUser?.AvatarUrl))
+                                {
+                                    <img src="@item.ActorUser.AvatarUrl"
+                                         alt="Ảnh đại diện"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+
+                                    <span class="notification-avatar-fallback"
+                                          style="display:none;">
+
+                                        <i class="bi bi-person-fill"></i>
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="notification-avatar-fallback">
+                                        <i class="bi bi-person-fill"></i>
+                                    </span>
+                                }
+
+                            <span class="notification-type-icon @typeClass">
+                                <i class="bi @iconClass"></i>
+                            </span>
+
+                        </div>
+
+                        <div class="notification-content">
+
+                            <p class="notification-message">
+                                @item.Message
+                            </p>
+
+                            <div class="notification-time">
+
+                                <i class="bi bi-clock"></i>
+
+                                <span>
+                                    @(item.CreatedAt
+                                                                    .ToLocalTime()
+                                                                    .ToString("dd/MM/yyyy HH:mm"))
+                            </span>
+
+                                </div>
+
+                            </div>
+
+                    @if (!item.IsRead)
+                            {
+                                <span class="notification-unread-dot"
+                                      title="Chưa đọc">
+                                </span>
+                            }
+
+                            <i class="bi bi-chevron-right notification-arrow"></i>
+
+                        </a>
+
+                        <form asp-controller="Notification"
+                              asp-action="Delete"
+                              method="post"
+                              class="notification-delete-form">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@item.Id" />
+
+                            <button type="submit"
+                                    class="notification-delete-btn"
+                                    title="Xóa thông báo">
+
+                                <i class="bi bi-x-lg"></i>
+
+                            </button>
+
+                        </form>
+
+                    </article>
+                }
+
+            </div>
+        }
+
+    </section>
+
+</div>

@@ -1,0 +1,135 @@
+﻿@model IEnumerable<DoAn.Models.Comment>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var users =
+        ViewBag.Users as Dictionary<int, DoAn.Models.User>;
+
+    var posts =
+        ViewBag.Posts as Dictionary<int, DoAn.Models.Post>;
+}
+
+<div class="admin-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>
+            Quản lý bình luận
+        </h2>
+
+        <span>
+            Tổng:
+            <b>@Model.Count()</b>
+        </span>
+
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-box">
+
+            <i class="fa-solid fa-comments"></i>
+
+            <p>Chưa có bình luận nào.</p>
+
+        </div>
+    }
+    else
+    {
+        <table class="admin-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Người dùng</th>
+
+                    <th>Bài viết</th>
+
+                    <th>Nội dung</th>
+
+                    <th>Ngày tạo</th>
+
+                    <th></th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    var user =
+                    users?.ContainsKey(item.UserId) == true
+                    ? users[item.UserId]
+                    : null;
+
+                    var post =
+                    posts?.ContainsKey(item.PostId) == true
+                    ? posts[item.PostId]
+                    : null;
+
+                    <tr>
+
+                        <td>@item.Id</td>
+
+                        <td>
+                            @(user?.FullName ?? "Không xác định")
+                        </td>
+
+                        <td>
+
+                            @if (post != null)
+                            {
+                                var text =
+                                post.Content.Length > 40
+                                ? post.Content.Substring(0, 40) + "..."
+                                : post.Content;
+
+                                @text
+                            }
+                            else
+                            {
+                                <span>Không tồn tại</span>
+                            }
+
+                        </td>
+
+                        <td>
+
+                            @item.Content
+
+                        </td>
+
+                        <td>
+
+                            @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+
+                        </td>
+
+                        <td>
+
+                            <a asp-action="DeleteComment"
+                               asp-route-id="@item.Id"
+                               class="admin-btn btn-danger"
+                               onclick="return confirm('Xóa bình luận này?')">
+
+                                Xóa
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+
+</div>

@@ -1,0 +1,220 @@
+﻿@model DoAn.ViewModels.Admin.EditUserViewModel
+@using DoAn.Models.Enums
+
+@{
+    ViewData["Title"] = "Chỉnh sửa người dùng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="admin-card admin-form-card">
+
+    <div class="admin-card-header">
+
+        <div>
+            <span class="admin-eyebrow">
+                QUẢN LÝ TÀI KHOẢN
+            </span>
+
+            <h2>Chỉnh sửa người dùng</h2>
+
+            <p>
+                Cập nhật thông tin, vai trò và trạng thái tài khoản.
+            </p>
+        </div>
+
+        <a asp-action="Users"
+           class="admin-btn admin-btn-secondary">
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Quay lại
+
+        </a>
+
+    </div>
+
+    <form asp-controller="Admin"
+          asp-action="EditUser"
+          method="post"
+          class="admin-form">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Id" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="admin-validation-summary">
+        </div>
+
+        <div class="admin-form-grid">
+
+            <div class="admin-form-group">
+
+                <label asp-for="Username"></label>
+
+                <input asp-for="Username"
+                       class="admin-form-control" />
+
+                <span asp-validation-for="Username"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group">
+
+                <label asp-for="FullName"></label>
+
+                <input asp-for="FullName"
+                       class="admin-form-control" />
+
+                <span asp-validation-for="FullName"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group">
+
+                <label asp-for="Email"></label>
+
+                <input asp-for="Email"
+                       type="email"
+                       class="admin-form-control" />
+
+                <span asp-validation-for="Email"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group">
+
+                <label asp-for="Phone"></label>
+
+                <input asp-for="Phone"
+                       class="admin-form-control"
+                       placeholder="Ví dụ: 0912345678" />
+
+                <span asp-validation-for="Phone"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group">
+
+                <label asp-for="AvatarUrl"></label>
+
+                <input asp-for="AvatarUrl"
+                       class="admin-form-control" />
+
+                <span asp-validation-for="AvatarUrl"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group">
+
+                <label asp-for="CoverUrl"></label>
+
+                <input asp-for="CoverUrl"
+                       class="admin-form-control" />
+
+                <span asp-validation-for="CoverUrl"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group admin-form-group-full">
+
+                <label asp-for="Bio"></label>
+
+                <textarea asp-for="Bio"
+                          rows="5"
+                          class="admin-form-control"
+                          placeholder="Có thể để trống..."></textarea>
+
+                <span asp-validation-for="Bio"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group">
+
+                <label asp-for="Role"></label>
+
+                <select asp-for="Role"
+                        class="admin-form-control">
+
+                    <option value="@UserRole.User">
+                        Người dùng
+                    </option>
+
+                    <option value="@UserRole.Admin">
+                        Quản trị viên
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="Role"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="admin-form-group">
+
+                <label asp-for="Status"></label>
+
+                <select asp-for="Status"
+                        class="admin-form-control">
+
+                    <option value="@UserStatus.Active">
+                        Hoạt động
+                    </option>
+
+                    <option value="@UserStatus.Suspended">
+                        Tạm khóa
+                    </option>
+
+                    <option value="@UserStatus.Banned">
+                        Bị cấm
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="Status"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="admin-form-actions">
+
+            <a asp-action="Users"
+               class="admin-btn admin-btn-secondary">
+                Hủy
+            </a>
+
+            <button type="submit"
+                    class="admin-btn admin-btn-primary">
+
+                <i class="fa-solid fa-floppy-disk"></i>
+                Lưu thay đổi
+
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

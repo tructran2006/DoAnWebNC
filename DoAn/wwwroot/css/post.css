@@ -1,0 +1,554 @@
+/* =========================================================
+   POST VARIABLES
+========================================================= */
+
+.post-page {
+    --post-page-surface: rgba(15, 23, 42, 0.86);
+    --post-page-surface-soft: rgba(148, 163, 184, 0.08);
+    --post-page-text: #f8fafc;
+    --post-page-muted: #94a3b8;
+    --post-page-border: rgba(148, 163, 184, 0.22);
+    --post-page-hover: rgba(148, 163, 184, 0.11);
+    --post-page-shadow: rgba(0, 0, 0, 0.20);
+    width: 100%;
+    color: var(--post-page-text);
+}
+
+body.light .post-page {
+    --post-page-surface: rgba(255, 255, 255, 0.98);
+    --post-page-surface-soft: #f8fafc;
+    --post-page-text: #0f172a;
+    --post-page-muted: #64748b;
+    --post-page-border: #e2e8f0;
+    --post-page-hover: #f1f5f9;
+    --post-page-shadow: rgba(15, 23, 42, 0.08);
+}
+
+/* =========================================================
+   COMMON PAGE
+========================================================= */
+
+.post-form-page,
+.post-details-page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 18px 45px;
+}
+
+.post-list-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 18px 45px;
+}
+
+.post-form-card,
+.comment-section,
+.post-empty-state {
+    border: 1px solid var(--post-page-border);
+    border-radius: 24px;
+    background: var(--post-page-surface);
+    color: var(--post-page-text);
+    box-shadow: 0 18px 42px var(--post-page-shadow);
+    backdrop-filter: blur(18px);
+}
+
+.post-page-header,
+.my-posts-header,
+.post-details-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.post-page-header {
+    padding: 22px;
+    border-bottom: 1px solid var(--post-page-border);
+}
+
+.my-posts-header,
+.post-details-heading {
+    margin-bottom: 22px;
+}
+
+.post-page-heading {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 14px;
+}
+
+.post-page-icon {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    place-items: center;
+    border-radius: 16px;
+    color: #fff;
+    font-size: 23px;
+    background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+}
+
+.post-page-heading h1,
+.post-details-heading h1 {
+    margin: 0;
+    color: var(--post-page-text);
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.post-page-heading p {
+    margin: 4px 0 0;
+    color: var(--post-page-muted);
+    font-size: 14px;
+}
+
+.post-details-eyebrow {
+    display: block;
+    margin-bottom: 4px;
+    color: #38bdf8;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.post-primary-button,
+.post-secondary-button,
+.post-back-button,
+.my-post-edit-button,
+.my-post-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 42px;
+    padding: 9px 15px;
+    border-radius: 11px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.post-primary-button {
+    border: 0;
+    color: #fff;
+    background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+    box-shadow: 0 10px 22px rgba(79, 70, 229, 0.20);
+}
+
+    .post-primary-button:hover {
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 13px 28px rgba(79, 70, 229, 0.28);
+    }
+
+.post-secondary-button,
+.post-back-button {
+    border: 1px solid var(--post-page-border);
+    background: transparent;
+    color: var(--post-page-text);
+}
+
+    .post-secondary-button:hover,
+    .post-back-button:hover {
+        color: var(--post-page-text);
+        background: var(--post-page-hover);
+    }
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.post-form {
+    padding: 22px;
+}
+
+.post-form-group {
+    margin-bottom: 22px;
+}
+
+.post-form-label,
+.post-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+    color: var(--post-page-text);
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.post-form-control {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--post-page-border);
+    border-radius: 13px;
+    outline: none;
+    background: var(--post-page-surface-soft);
+    color: var(--post-page-text);
+    font: inherit;
+    line-height: 1.55;
+    transition: 0.2s ease;
+}
+
+    .post-form-control::placeholder {
+        color: var(--post-page-muted);
+    }
+
+    .post-form-control:focus {
+        border-color: #38bdf8;
+        background: var(--post-page-surface);
+        box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
+    }
+
+.post-content-input,
+.comment-textarea {
+    resize: vertical;
+    min-height: 145px;
+}
+
+.comment-textarea {
+    min-height: 92px;
+}
+
+.post-validation-summary {
+    margin-bottom: 18px;
+    color: #ef4444;
+}
+
+.post-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+.post-upload-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 170px;
+    padding: 24px;
+    border: 1px dashed var(--post-page-border);
+    border-radius: 17px;
+    background: var(--post-page-surface-soft);
+    color: var(--post-page-text);
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .post-upload-box:hover {
+        border-color: #38bdf8;
+        background: rgba(56, 189, 248, 0.08);
+    }
+
+.post-upload-icon {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    margin-bottom: 12px;
+    place-items: center;
+    border-radius: 17px;
+    color: #38bdf8;
+    font-size: 27px;
+    background: rgba(56, 189, 248, 0.12);
+}
+
+.post-upload-box strong {
+    font-size: 15px;
+}
+
+.post-upload-box small {
+    margin-top: 5px;
+    color: var(--post-page-muted);
+    font-size: 12px;
+}
+
+.post-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.post-selected-file {
+    margin-top: 9px;
+    color: var(--post-page-muted);
+    font-size: 13px;
+}
+
+/* =========================================================
+   PREVIEW AND CURRENT MEDIA
+========================================================= */
+
+.post-preview,
+.post-current-media {
+    overflow: hidden;
+    margin-bottom: 22px;
+    border: 1px solid var(--post-page-border);
+    border-radius: 17px;
+    background: var(--post-page-surface-soft);
+}
+
+.post-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--post-page-border);
+    color: var(--post-page-text);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+    .post-preview-header span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+.post-remove-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+    color: #ef4444;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.post-preview-content,
+.post-current-media-content {
+    overflow: hidden;
+    background: #020617;
+}
+
+.post-preview-image,
+.post-preview-video,
+.post-current-image,
+.post-current-video {
+    display: block;
+    width: 100%;
+    max-height: 620px;
+    margin: 0;
+    object-fit: contain;
+    background: #020617;
+}
+
+.post-current-media {
+    margin: 0 22px 22px;
+}
+
+    .post-current-media .post-section-title {
+        margin: 0;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--post-page-border);
+    }
+
+/* =========================================================
+   MY POSTS
+========================================================= */
+
+.my-posts-header-actions,
+.my-post-buttons {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.post-alert {
+    border-radius: 16px;
+}
+
+body:not(.light) .post-alert .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.my-post-wrapper {
+    margin-bottom: 24px;
+}
+
+.my-post-management {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 9px;
+    padding: 10px 12px;
+    border: 1px solid var(--post-page-border);
+    border-radius: 14px;
+    background: var(--post-page-surface);
+    color: var(--post-page-text);
+}
+
+.my-post-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--post-page-muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.my-post-buttons form {
+    margin: 0;
+}
+
+.my-post-edit-button {
+    border: 1px solid rgba(56, 189, 248, 0.30);
+    background: rgba(56, 189, 248, 0.08);
+    color: #38bdf8;
+}
+
+    .my-post-edit-button:hover {
+        color: #0ea5e9;
+        background: rgba(56, 189, 248, 0.14);
+    }
+
+.my-post-delete-button {
+    border: 1px solid rgba(239, 68, 68, 0.30);
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+}
+
+    .my-post-delete-button:hover {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+.post-empty-state {
+    padding: 62px 24px;
+    text-align: center;
+}
+
+.post-empty-icon {
+    display: grid;
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 18px;
+    place-items: center;
+    border-radius: 23px;
+    color: #38bdf8;
+    font-size: 34px;
+    background: rgba(56, 189, 248, 0.12);
+}
+
+.post-empty-state h2 {
+    margin: 0 0 8px;
+    color: var(--post-page-text);
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.post-empty-state p {
+    margin: 0 0 20px;
+    color: var(--post-page-muted);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 700px) {
+    .post-form-page,
+    .post-details-page,
+    .post-list-page {
+        padding: 14px 10px 30px;
+    }
+
+    .post-form-card,
+    .comment-section,
+    .post-empty-state {
+        border-radius: 19px;
+    }
+
+    .post-page-header,
+    .my-posts-header,
+    .post-details-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .post-page-header {
+        padding: 17px;
+    }
+
+    .post-form {
+        padding: 17px;
+    }
+
+    .post-back-button {
+        width: 100%;
+    }
+
+    .my-posts-header-actions {
+        width: 100%;
+    }
+
+        .my-posts-header-actions > a {
+            flex: 1;
+        }
+
+    .my-post-management {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .my-post-buttons {
+        width: 100%;
+    }
+
+        .my-post-buttons > a,
+        .my-post-buttons form {
+            flex: 1;
+        }
+
+        .my-post-buttons button {
+            width: 100%;
+        }
+
+    .post-form-actions {
+        flex-direction: column-reverse;
+    }
+
+        .post-form-actions > a,
+        .post-form-actions > button {
+            width: 100%;
+        }
+
+    .post-current-media {
+        margin-right: 17px;
+        margin-left: 17px;
+    }
+
+    .comment-form-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+        .comment-form-actions .post-primary-button {
+            width: 100%;
+        }
+}
+
+/* MULTI MEDIA */
+.multi-media-preview,.current-media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:22px}.multi-preview-item,.current-media-item{overflow:hidden;border:1px solid var(--post-page-border);border-radius:14px;background:var(--post-page-surface-soft)}.multi-preview-item img,.multi-preview-item video,.current-media-item img,.current-media-item video{display:block;width:100%;height:170px;object-fit:cover;background:#020617}.multi-preview-item span,.current-media-item span{display:block;padding:9px 11px;color:var(--post-page-muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.current-media-item span{color:#ef4444;cursor:pointer}.current-media-item input{margin-right:6px}

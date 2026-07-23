@@ -1,0 +1,33 @@
+﻿@model DoAn.ViewModels.Admin.AdminDashboardViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+
+<h2>Dashboard</h2>
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <h3>@Model.TotalUsers</h3>
+        <p>Người dùng</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>@Model.TotalPosts</h3>
+        <p>Bài viết</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>@Model.TotalComments</h3>
+        <p>Bình luận</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>@Model.TotalAdmins</h3>
+        <p>Quản trị viên</p>
+    </div>
+
+</div>

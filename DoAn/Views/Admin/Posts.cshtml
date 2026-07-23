@@ -1,0 +1,303 @@
+﻿@model IEnumerable<DoAn.Models.Post>
+
+@{
+    ViewData["Title"] = "Quản lý bài viết";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var posts = Model?.ToList()
+        ?? new List<DoAn.Models.Post>();
+}
+
+<section class="admin-card">
+
+    <div class="admin-card-header">
+
+        <div>
+            <span class="admin-eyebrow">
+                QUẢN LÝ NỘI DUNG
+            </span>
+
+            <h2>Danh sách bài viết</h2>
+
+            <p>
+                Tổng cộng @posts.Count bài viết.
+            </p>
+        </div>
+
+    </div>
+
+    @if (posts.Count == 0)
+    {
+        <div class="admin-empty">
+
+            <i class="fa-regular fa-newspaper"></i>
+
+            <h3>Chưa có bài viết</h3>
+
+            <p>
+                Hệ thống hiện chưa có bài viết nào.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Người đăng</th>
+                        <th>Nội dung</th>
+                        <th>Media</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày đăng</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var post in posts)
+                    {
+                        string contentPreview =
+                        string.IsNullOrWhiteSpace(post.Content)
+                        ? "Không có nội dung"
+                        : post.Content.Trim().Length > 90
+                        ? post.Content.Trim()
+                        .Substring(0, 90) + "..."
+                        : post.Content.Trim();
+
+                        int mediaCount =
+                        post.MediaItems?.Count ?? 0;
+
+                        <tr>
+
+                            <td>
+                                #@post.Id
+                            </td>
+
+                            <td>
+                                <div class="admin-user-cell">
+
+                                    <span class="admin-user-avatar">
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                                                        post.User?.AvatarUrl))
+                                        {
+                                            <img src="@post.User.AvatarUrl"
+                                                 alt="Avatar" />
+                                        }
+                                        else
+                                        {
+                                            <i class="fa-solid fa-user"></i>
+                                        }
+
+                                </span>
+
+                                <div>
+                                    <strong>
+                                        @(post.User?.FullName
+                                                                            ?? $"User #{post.UserId}")
+                                </strong>
+
+                                @if (post.User != null)
+                                        {
+                                            <small>
+                                                @@@post.User.Username
+                                            </small>
+                                        }
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="admin-content-preview">
+                                    @contentPreview
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="admin-status admin-status-neutral">
+                                    <i class="fa-regular fa-images"></i>
+                                    @mediaCount
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (post.IsDeleted)
+                                {
+                                    <span class="admin-status admin-status-danger">
+                                        Đã xóa
+                                    </span>
+                                }
+                                else if (post.IsHidden)
+                                {
+                                    <span class="admin-status admin-status-warning">
+                                        Đang ẩn
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="admin-status admin-status-success">
+                                        Đang hiển thị
+                                    </span>
+                                }
+                        </td>
+
+                        <td>
+                            @(post.CreatedAt
+                                                    .ToLocalTime()
+                                                    .ToString("dd/MM/yyyy HH:mm"))
+                    </td>
+
+                            <td>
+                                <div class="admin-table-actions">
+
+                                    <!-- XEM -->
+
+                                    <a asp-controller="Admin"
+                                       asp-action="PostDetails"
+                                       asp-route-id="@post.Id"
+                                       class="admin-icon-btn admin-icon-view"
+                                       title="Xem chi tiết">
+
+                                        <i class="fa-solid fa-eye"></i>
+
+                                    </a>
+
+                                    <!-- SỬA -->
+
+                                    <a asp-controller="Admin"
+                                       asp-action="EditPost"
+                                       asp-route-id="@post.Id"
+                                       class="admin-icon-btn admin-icon-edit"
+                                       title="Chỉnh sửa">
+
+                                        <i class="fa-solid fa-pen"></i>
+
+                                    </a>
+
+                            @if (post.IsDeleted)
+                                    {
+                                        <!-- KHÔI PHỤC -->
+
+                                        <form asp-controller="Admin"
+                                              asp-action="RestorePost"
+                                              method="post"
+                                              class="admin-inline-form"
+                                              onsubmit="return confirm('Khôi phục bài viết này?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@post.Id" />
+
+                                            <button type="submit"
+                                                    class="admin-icon-btn admin-icon-success"
+                                                    title="Khôi phục">
+
+                                                <i class="fa-solid fa-rotate-left"></i>
+
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        @if (post.IsHidden)
+                                        {
+                                            <!-- HIỆN -->
+
+                                            <form asp-controller="Admin"
+                                                  asp-action="ShowPost"
+                                                  method="post"
+                                                  class="admin-inline-form"
+                                                  onsubmit="return confirm('Hiển thị lại bài viết này?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@post.Id" />
+
+                                                <button type="submit"
+                                                        class="admin-icon-btn admin-icon-success"
+                                                        title="Hiển thị">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <!-- ẨN -->
+
+                                            <form asp-controller="Admin"
+                                                  asp-action="HidePost"
+                                                  method="post"
+                                                  class="admin-inline-form"
+                                                  onsubmit="return confirm('Ẩn bài viết này?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@post.Id" />
+
+                                                <button type="submit"
+                                                        class="admin-icon-btn admin-icon-warning"
+                                                        title="Ẩn bài viết">
+
+                                                    <i class="fa-solid fa-eye-slash"></i>
+
+                                                </button>
+
+                                            </form>
+                                        }
+
+                                        <!-- XÓA MỀM -->
+
+                                        <form asp-controller="Admin"
+                                              asp-action="DeletePost"
+                                              method="post"
+                                              class="admin-inline-form"
+                                              onsubmit="return confirm('Chuyển bài viết sang trạng thái đã xóa?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@post.Id" />
+
+                                            <button type="submit"
+                                                    class="admin-icon-btn admin-icon-danger"
+                                                    title="Xóa bài viết">
+
+                                                <i class="fa-solid fa-trash"></i>
+
+                                            </button>
+
+                                        </form>
+                                    }
+
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</section>

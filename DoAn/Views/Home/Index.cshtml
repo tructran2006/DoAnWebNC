@@ -1,0 +1,367 @@
+﻿@model DoAn.ViewModels.HomeViewModel
+
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<link rel="stylesheet"
+      href="~/css/home.css"
+      asp-append-version="true" />
+
+<link rel="stylesheet"
+      href="~/css/post-card.css"
+      asp-append-version="true" />
+
+
+
+<form id="ajax-token-form"
+      class="d-none"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+</form>
+
+<div class="social-home-page">
+
+    <div class="social-home-layout">
+
+        <!-- ==================================================
+             FEED
+        =================================================== -->
+
+        <main class="social-home-feed">
+
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="alert alert-success alert-dismissible fade show social-home-alert"
+                     role="alert">
+
+                    <i class="bi bi-check-circle-fill me-2"></i>
+
+                    @successMessage
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Đóng">
+                    </button>
+
+                </div>
+            }
+
+            <!-- Tạo bài viết -->
+
+            <section class="social-create-post">
+
+                <div class="social-create-post-icon">
+
+                    <i class="bi bi-pencil-square"></i>
+
+                </div>
+
+                <div class="social-create-post-info">
+
+                    <h2>
+                        Chia sẻ bài viết
+                    </h2>
+
+                    <p>
+                        Chia sẻ suy nghĩ, hình ảnh hoặc video của bạn.
+                    </p>
+
+                </div>
+
+                <a asp-controller="Post"
+                   asp-action="Create"
+                   class="social-create-post-button">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    <span>
+                        Tạo bài viết
+                    </span>
+
+                </a>
+
+            </section>
+
+            <!-- Danh sách bài viết -->
+            @if (Model?.Posts != null &&
+                        Model.Posts.Any())
+            {
+                @foreach (var post in Model.Posts)
+                {
+                    <partial name="~/Views/Post/_PostCard.cshtml"
+                             model="post" />
+                }
+            }
+            else
+            {
+                <section class="social-home-empty">
+
+                    <div class="social-home-empty-icon">
+
+                        <i class="bi bi-file-earmark-post"></i>
+
+                    </div>
+
+                    <h2>
+                        Chưa có bài viết nào
+                    </h2>
+
+                    <p>
+                        Hãy đăng bài viết đầu tiên để bắt đầu chia sẻ
+                        với mọi người.
+                    </p>
+
+                    <a asp-controller="Post"
+                       asp-action="Create"
+                       class="social-home-primary-button">
+
+                        <i class="bi bi-plus-circle"></i>
+
+                        Tạo bài viết
+
+                    </a>
+
+                </section>
+            }
+
+        </main>
+
+        <!-- ==================================================
+             SIDEBAR
+        =================================================== -->
+
+        <aside class="social-home-sidebar">
+
+            <!-- Bài viết nổi bật -->
+
+            <section class="social-sidebar-card">
+
+                <header class="social-sidebar-header">
+
+                    <div class="social-sidebar-heading">
+
+                        <span class="social-sidebar-icon social-sidebar-fire">
+
+                            <i class="bi bi-fire"></i>
+
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Bài viết nổi bật
+                            </h2>
+
+                            <p>
+                                Những bài có nhiều lượt thích
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </header>
+
+                <div class="social-sidebar-body">
+
+                    @if (Model?.TopPosts != null &&
+                                        Model.TopPosts.Any())
+                    {
+                        @foreach (var post in Model.TopPosts.Take(4))
+                        {
+                            string contentPreview =
+                            string.IsNullOrWhiteSpace(post.Content)
+                            ? "Bài viết không có nội dung."
+                            : post.Content.Trim().Length > 75
+                            ? post.Content.Trim()
+                            .Substring(0, 75) + "..."
+                            : post.Content.Trim();
+
+                            <a asp-controller="Post"
+                               asp-action="Details"
+                               asp-route-id="@post.Id"
+                               class="social-featured-post">
+
+                                <div class="social-featured-content">
+                                    @contentPreview
+                                </div>
+
+                                <div class="social-featured-meta">
+
+                                    <span>
+
+                                        <i class="bi bi-heart-fill"></i>
+
+                                        @post.LikeCount lượt thích
+
+                                    </span>
+
+                                    <i class="bi bi-chevron-right"></i>
+
+                                </div>
+
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="social-sidebar-empty">
+
+                            <i class="bi bi-fire"></i>
+
+                            <span>
+                                Chưa có bài viết nổi bật.
+                            </span>
+
+                        </div>
+                    }
+
+                </div>
+
+            </section>
+
+            <!-- Gợi ý kết bạn -->
+
+            <section class="social-sidebar-card">
+
+                <header class="social-sidebar-header">
+
+                    <div class="social-sidebar-heading">
+
+                        <span class="social-sidebar-icon social-sidebar-friends">
+
+                            <i class="bi bi-people"></i>
+
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Gợi ý kết bạn
+                            </h2>
+
+                            <p>
+                                Những người bạn có thể biết
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </header>
+
+                <div class="social-sidebar-body">
+
+                    @if (Model?.SuggestedUsers != null &&
+                                        Model.SuggestedUsers.Any())
+                    {
+                        @foreach (var user in Model.SuggestedUsers.Take(4))
+                        {
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@user.Id"
+                               class="social-suggested-user">
+
+                                <span class="social-suggested-avatar">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                user.AvatarUrl))
+                                    {
+                                        <img src="@user.AvatarUrl"
+                                             alt="Ảnh đại diện của @user.FullName"
+                                             loading="lazy"
+                                             onerror="handleHomeAvatarError(this)" />
+
+                                        <span class="social-suggested-avatar-fallback d-none">
+
+                                            <i class="bi bi-person-fill"></i>
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="social-suggested-avatar-fallback">
+
+                                            <i class="bi bi-person-fill"></i>
+
+                                        </span>
+                                    }
+
+                            </span>
+
+                            <span class="social-suggested-info">
+
+                                <strong>
+
+                                    @(string.IsNullOrWhiteSpace(
+                                                                    user.FullName)
+                                                                    ? "Người dùng"
+                                                                    : user.FullName)
+
+                            </strong>
+
+                                    <small>
+
+                                        @@@(string.IsNullOrWhiteSpace(
+                                                                user.Username)
+                                                                ? "unknown"
+                                                                : user.Username)
+
+                            </small>
+
+                                </span>
+
+                                <span class="social-suggested-arrow">
+
+                                    <i class="bi bi-chevron-right"></i>
+
+                                </span>
+
+                            </a>
+                                        }
+                    }
+                    else
+                    {
+                        <div class="social-sidebar-empty">
+
+                            <i class="bi bi-people"></i>
+
+                            <span>
+                                Chưa có gợi ý kết bạn.
+                            </span>
+                            
+                        </div>
+                    }
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+        /*
+         * Hiển thị icon mặc định nếu ảnh avatar gợi ý bị lỗi.
+         */
+        window.handleHomeAvatarError = function (image) {
+            image.style.display = "none";
+
+            const fallback = image.nextElementSibling;
+
+            if (fallback) {
+                fallback.classList.remove("d-none");
+            }
+        };
+    </script>
+
+}

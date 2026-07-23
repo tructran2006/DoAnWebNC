@@ -1,0 +1,190 @@
+﻿@model DoAn.Models.Post
+
+@{
+    ViewData["Title"] = "Chi tiết bài viết";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    int likeCount =
+        ViewBag.LikeCount is int likes ? likes : 0;
+
+    int commentCount =
+        ViewBag.CommentCount is int comments ? comments : 0;
+
+    var mediaItems = Model.MediaItems?
+        .OrderBy(item => item.DisplayOrder)
+        .ToList()
+        ?? new List<DoAn.Models.PostMedia>();
+}
+
+<section class="admin-card">
+
+    <div class="admin-card-header">
+
+        <div>
+            <span class="admin-eyebrow">
+                CHI TIẾT NỘI DUNG
+            </span>
+
+            <h2>Bài viết #@Model.Id</h2>
+
+            <p>
+                Xem thông tin và trạng thái bài viết.
+            </p>
+        </div>
+
+        <div class="admin-header-actions">
+
+            <a asp-controller="Admin"
+               asp-action="Posts"
+               class="admin-btn admin-btn-secondary">
+
+                <i class="fa-solid fa-arrow-left"></i>
+                Quay lại
+
+            </a>
+
+            <a asp-controller="Admin"
+               asp-action="EditPost"
+               asp-route-id="@Model.Id"
+               class="admin-btn admin-btn-primary">
+
+                <i class="fa-solid fa-pen"></i>
+                Chỉnh sửa
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="admin-post-details">
+
+        <div class="admin-post-author">
+
+            <span class="admin-user-avatar admin-post-author-avatar">
+
+                @if (!string.IsNullOrWhiteSpace(
+                                Model.User?.AvatarUrl))
+                {
+                    <img src="@Model.User.AvatarUrl"
+                         alt="Avatar" />
+                }
+                else
+                {
+                    <i class="fa-solid fa-user"></i>
+                }
+
+            </span>
+
+            <div>
+                <strong>
+                    @(Model.User?.FullName
+                                        ?? $"User #{Model.UserId}")
+                </strong>
+
+                <small>
+                    @(Model.User != null
+                                        ? $"@{Model.User.Username}"
+                                        : "Không xác định")
+                </small>
+            </div>
+
+        </div>
+
+        <div class="admin-post-details-content">
+            @Model.Content
+        </div>
+
+        @if (mediaItems.Count > 0)
+        {
+            <div class="admin-post-media-grid">
+
+                @foreach (var media in mediaItems)
+                {
+                    <div class="admin-post-media-item">
+
+                        @if (string.Equals(
+                                        media.MediaType,
+                                        "video",
+                                        StringComparison.OrdinalIgnoreCase))
+                        {
+                            <video controls preload="metadata">
+                                <source src="@media.MediaUrl" />
+                            </video>
+                        }
+                        else
+                        {
+                            <img src="@media.MediaUrl"
+                                 alt="Ảnh bài viết" />
+                        }
+
+                    </div>
+                }
+
+            </div>
+        }
+
+        <div class="admin-details-grid">
+
+            <div class="admin-detail-item">
+                <span>Người đăng</span>
+                <strong>
+                    @(Model.User?.FullName
+                                        ?? $"User #{Model.UserId}")
+                </strong>
+            </div>
+
+            <div class="admin-detail-item">
+                <span>Ngày đăng</span>
+                <strong>
+                    @(Model.CreatedAt
+                                        .ToLocalTime()
+                                        .ToString("dd/MM/yyyy HH:mm"))
+                </strong>
+            </div>
+
+            <div class="admin-detail-item">
+                <span>Lượt thích</span>
+                <strong>@likeCount</strong>
+            </div>
+
+            <div class="admin-detail-item">
+                <span>Bình luận</span>
+                <strong>@commentCount</strong>
+            </div>
+
+            <div class="admin-detail-item">
+                <span>Số media</span>
+                <strong>@mediaItems.Count</strong>
+            </div>
+
+            <div class="admin-detail-item">
+                <span>Trạng thái</span>
+
+                <strong>
+                    @if (Model.IsDeleted)
+                    {
+                        <span class="admin-status admin-status-danger">
+                            Đã xóa
+                        </span>
+                    }
+                    else if (Model.IsHidden)
+                    {
+                        <span class="admin-status admin-status-warning">
+                            Đang ẩn
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="admin-status admin-status-success">
+                            Đang hiển thị
+                        </span>
+                    }
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>

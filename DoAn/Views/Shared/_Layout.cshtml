@@ -1,0 +1,200 @@
+@using System.Security.Claims
+@inject DoAn.Services.NotificationService NotificationService
+@{
+    var layoutUserId = 0;
+    int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out layoutUserId);
+    var layoutUnreadCount = layoutUserId > 0
+        ? await NotificationService.GetUnreadCountAsync(layoutUserId)
+        : 0;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Social</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/layout.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/home.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+
+    <!-- Background -->
+
+    <div class="background">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <div class="logo">
+
+            <i class="bi bi-chat-heart-fill"></i>
+
+            <span>Social</span>
+
+        </div>
+
+        <form asp-controller="Search"
+              asp-action="Index"
+              method="get"
+              class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="search"
+                   name="q"
+                   placeholder="Tìm bài viết hoặc người dùng..."
+                   autocomplete="off" />
+        </form>
+
+        <div class="top-actions">
+
+            <a asp-controller="Post"
+               asp-action="Create"
+               class="create-btn">
+
+                <i class="bi bi-plus-lg"></i>
+
+                <span>Đăng bài</span>
+
+            </a>
+
+            <a asp-controller="Notification"
+               asp-action="Index"
+               class="notification-action"
+               title="Thông báo">
+                <i class="bi bi-bell-fill"></i>
+                <span id="notificationBadge"
+                      class="notification-badge @(layoutUnreadCount > 0 ? "" : "d-none")">
+                    @(layoutUnreadCount > 99 ? "99+" : layoutUnreadCount.ToString())
+                </span>
+            </a>
+
+            <button id="theme-toggle"
+                    class="theme-btn">
+
+                <i id="theme-icon"
+                   class="bi bi-sun-fill"></i>
+
+            </button>
+
+            <a asp-controller="Profile"
+               asp-action="Index">
+
+                <i class="bi bi-person-circle profile-icon"></i>
+
+            </a>
+
+        </div>
+
+    </header>
+
+    <!-- APP -->
+
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <a asp-controller="Home"
+               asp-action="Index">
+
+                <i class="bi bi-house-door-fill"></i>
+
+                <span>Trang chủ</span>
+
+            </a>
+
+            <a asp-controller="Friend"
+               asp-action="Friends">
+
+                <i class="bi bi-people-fill"></i>
+
+                <span>Bạn bè</span>
+
+            </a>
+
+            <a asp-controller="Profile"
+               asp-action="Index">
+
+                <i class="bi bi-person-badge-fill"></i>
+
+                <span>Hồ sơ</span>
+
+            </a>
+
+            <form asp-controller="Auth"
+                  asp-action="Logout"
+                  method="post"
+                  class="sidebar-logout">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit">
+
+                    <i class="bi bi-box-arrow-right"></i>
+
+                    <span>Đăng xuất</span>
+
+                </button>
+
+            </form>
+
+        </aside>
+
+        <!-- CONTENT -->
+
+        <main class="content">
+
+            @RenderBody()
+
+        </main>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    <script>
+        (() => {
+            const badge = document.getElementById("notificationBadge");
+            if (!badge) return;
+            async function refreshNotificationBadge() {
+                try {
+                    const response = await fetch("/Notification/UnreadCount", {
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    });
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    const count = Number(data.count || 0);
+                    badge.textContent = count > 99 ? "99+" : count;
+                    badge.classList.toggle("d-none", count <= 0);
+                } catch { }
+            }
+            window.setInterval(refreshNotificationBadge, 30000);
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", false)
+
+</body>
+</html>

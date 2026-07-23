@@ -1,0 +1,278 @@
+@model DoAn.ViewModels.Profile.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+}
+
+<link rel="stylesheet"
+      href="~/css/profile.css"
+      asp-append-version="true" />
+
+<div class="profile-page narrow-page">
+
+    <section class="profile-card edit-profile-card">
+
+        <div class="page-heading">
+
+            <div>
+                <span class="eyebrow">HỒ SƠ CÁ NHÂN</span>
+                <h1>Chỉnh sửa thông tin</h1>
+                <p>Cập nhật thông tin, ảnh đại diện và ảnh bìa của bạn.</p>
+            </div>
+
+            <a asp-action="Index"
+               class="profile-action secondary">
+                <i class="bi bi-arrow-left"></i>
+                Quay lại
+            </a>
+
+        </div>
+
+        <form asp-action="Edit"
+              method="post"
+              enctype="multipart/form-data"
+              class="profile-form">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="CurrentAvatar" type="hidden" />
+            <input asp-for="CurrentCover" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="profile-validation-summary">
+            </div>
+
+            <div class="profile-preview-area">
+
+                <div class="cover-preview"
+                     id="coverPreview">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.CurrentCover))
+                    {
+                        <img src="@Model.CurrentCover"
+                             alt="Ảnh bìa hiện tại"
+                             id="coverPreviewImage" />
+                    }
+                    else
+                    {
+                        <div class="preview-placeholder" id="coverPlaceholder">
+                            <i class="bi bi-image"></i>
+                            <span>Xem trước ảnh bìa</span>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="avatar-preview"
+                     id="avatarPreview">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.CurrentAvatar))
+                    {
+                        <img src="@Model.CurrentAvatar"
+                             alt="Ảnh đại diện hiện tại"
+                             id="avatarPreviewImage" />
+                    }
+                    else
+                    {
+                        <div class="avatar-preview-placeholder"
+                             id="avatarPlaceholder">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+            <div class="profile-form-grid">
+
+                <div class="profile-form-group">
+                    <label asp-for="FullName" class="profile-form-label"></label>
+                    <input asp-for="FullName"
+                           class="profile-form-control"
+                           autocomplete="name" />
+                    <span asp-validation-for="FullName"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="profile-form-group">
+                    <label asp-for="Email" class="profile-form-label"></label>
+                    <input asp-for="Email"
+                           type="email"
+                           class="profile-form-control"
+                           autocomplete="email" />
+                    <span asp-validation-for="Email"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="profile-form-group profile-form-group-full">
+                    <label asp-for="Phone" class="profile-form-label"></label>
+                    <input asp-for="Phone"
+                           type="tel"
+                           class="profile-form-control"
+                           placeholder="Ví dụ: 0912345678"
+                           autocomplete="tel" />
+                    <span asp-validation-for="Phone"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="profile-form-group profile-form-group-full">
+                    <label asp-for="Bio" class="profile-form-label"></label>
+                    <textarea asp-for="Bio"
+                              rows="4"
+                              class="profile-form-control profile-bio-input"
+                              placeholder="Có thể để trống phần giới thiệu..."></textarea>
+                    <div class="profile-form-hint">
+                        Bạn có thể để trống. Tối đa 500 ký tự.
+                    </div>
+                    <span asp-validation-for="Bio"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="profile-form-group">
+                    <label asp-for="AvatarFile" class="profile-form-label"></label>
+                    <label for="avatarFile" class="profile-upload-box">
+                        <i class="bi bi-person-bounding-box"></i>
+                        <strong>Chọn ảnh đại diện</strong>
+                        <span>JPG, PNG, WEBP hoặc GIF · tối đa 5 MB</span>
+                    </label>
+                    <input asp-for="AvatarFile"
+                           id="avatarFile"
+                           type="file"
+                           accept="image/jpeg,image/png,image/webp,image/gif"
+                           class="profile-file-input" />
+                    <div class="selected-file-name" id="avatarFileName"></div>
+                    <span asp-validation-for="AvatarFile"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="profile-form-group">
+                    <label asp-for="CoverFile" class="profile-form-label"></label>
+                    <label for="coverFile" class="profile-upload-box">
+                        <i class="bi bi-card-image"></i>
+                        <strong>Chọn ảnh bìa</strong>
+                        <span>Ảnh ngang sẽ hiển thị đẹp hơn · tối đa 5 MB</span>
+                    </label>
+                    <input asp-for="CoverFile"
+                           id="coverFile"
+                           type="file"
+                           accept="image/jpeg,image/png,image/webp,image/gif"
+                           class="profile-file-input" />
+                    <div class="selected-file-name" id="coverFileName"></div>
+                    <span asp-validation-for="CoverFile"
+                          class="text-danger"></span>
+                </div>
+
+            </div>
+
+            <div class="profile-form-actions">
+                <a asp-action="Index"
+                   class="profile-action secondary">
+                    Hủy
+                </a>
+
+                <button type="submit"
+                        class="profile-action primary">
+                    <i class="bi bi-check2-circle"></i>
+                    Lưu thay đổi
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const avatarInput = document.getElementById("avatarFile");
+            const coverInput = document.getElementById("coverFile");
+            const avatarPreview = document.getElementById("avatarPreview");
+            const coverPreview = document.getElementById("coverPreview");
+            const avatarFileName = document.getElementById("avatarFileName");
+            const coverFileName = document.getElementById("coverFileName");
+
+            let avatarObjectUrl = null;
+            let coverObjectUrl = null;
+
+            function renderImage(container, url, alt, circular) {
+                container.innerHTML = "";
+
+                const image = document.createElement("img");
+                image.src = url;
+                image.alt = alt;
+                image.className = circular
+                    ? "avatar-preview-image"
+                    : "cover-preview-image";
+
+                container.appendChild(image);
+            }
+
+            function handleImageChange(input, container, fileNameBox, isAvatar) {
+                const file = input.files?.[0];
+
+                if (!file) {
+                    fileNameBox.textContent = "";
+                    return;
+                }
+
+                if (!file.type.startsWith("image/")) {
+                    input.value = "";
+                    fileNameBox.textContent = "";
+                    alert("Vui lòng chọn một file hình ảnh hợp lệ.");
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    input.value = "";
+                    fileNameBox.textContent = "";
+                    alert("Ảnh không được vượt quá 5 MB.");
+                    return;
+                }
+
+                if (isAvatar && avatarObjectUrl) {
+                    URL.revokeObjectURL(avatarObjectUrl);
+                }
+
+                if (!isAvatar && coverObjectUrl) {
+                    URL.revokeObjectURL(coverObjectUrl);
+                }
+
+                const url = URL.createObjectURL(file);
+
+                if (isAvatar) {
+                    avatarObjectUrl = url;
+                } else {
+                    coverObjectUrl = url;
+                }
+
+                renderImage(
+                    container,
+                    url,
+                    isAvatar ? "Xem trước ảnh đại diện" : "Xem trước ảnh bìa",
+                    isAvatar
+                );
+
+                fileNameBox.textContent = `Đã chọn: ${file.name}`;
+            }
+
+            avatarInput?.addEventListener("change", function () {
+                handleImageChange(this, avatarPreview, avatarFileName, true);
+            });
+
+            coverInput?.addEventListener("change", function () {
+                handleImageChange(this, coverPreview, coverFileName, false);
+            });
+
+            window.addEventListener("beforeunload", () => {
+                if (avatarObjectUrl) URL.revokeObjectURL(avatarObjectUrl);
+                if (coverObjectUrl) URL.revokeObjectURL(coverObjectUrl);
+            });
+        })();
+    </script>
+}

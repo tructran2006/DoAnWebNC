@@ -1,0 +1,157 @@
+﻿@model DoAn.ViewModels.LoginViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Social - Đăng nhập</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="@Url.Content("~/css/login.css")"
+          asp-append-version="true" />
+
+    <link href="~/css/login.css"
+          rel="stylesheet"
+          asp-append-version="true" />
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-left">
+
+            <div class="brand">
+
+                <i class="fa-solid fa-users"></i>
+
+                <h1>Social</h1>
+
+            </div>
+
+            <h2>Kết nối mọi người</h2>
+
+            <p>
+                Chia sẻ khoảnh khắc, kết bạn và tương tác với cộng đồng.
+            </p>
+
+        </div>
+
+        <div class="login-right">
+
+            <div class="card">
+
+                <h2>Đăng nhập</h2>
+
+                <form asp-action="Login"
+                      method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger">
+                    </div>
+
+                    <div class="input-box">
+
+                        <i class="fa-solid fa-user"></i>
+
+                        <input asp-for="UsernameOrEmail"
+                               placeholder="Tài khoản" />
+
+                    </div>
+
+                    <span asp-validation-for="UsernameOrEmail"
+                          class="text-danger">
+                    </span>
+
+                    <div class="input-box">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        <input asp-for="Password"
+                               type="password"
+                               id="password"
+                               placeholder="Mật khẩu" />
+
+                        <button type="button"
+                                id="togglePassword">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </button>
+
+                    </div>
+
+                    <span asp-validation-for="Password"
+                          class="text-danger">
+                    </span>
+
+                    <div class="remember">
+
+                        <label>
+
+                            <input asp-for="RememberMe" />
+
+                            Ghi nhớ đăng nhập
+
+                        </label>
+
+                    </div>
+
+                    <button class="login-btn"
+                            type="submit">
+
+                        Đăng nhập
+
+                    </button>
+                    <div class="register-link">
+                        <span>Chưa có tài khoản?</span>
+                        <a asp-action="Register">
+                            Đăng ký ngay
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const togglePassword =
+        document.getElementById("togglePassword");
+
+        const password =
+        document.getElementById("password");
+
+        togglePassword.addEventListener("click", () => {
+
+            if(password.type === "password")
+            {
+                password.type = "text";
+            }
+            else
+            {
+                password.type = "password";
+            }
+
+        });
+
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+</body>
+</html>

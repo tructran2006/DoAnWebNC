@@ -1,0 +1,69 @@
+@model DoAn.ViewModels.Profile.ProfilePhotosViewModel
+
+@{
+    ViewData["Title"] = $"Ảnh của {Model.ProfileName}";
+}
+
+<link rel="stylesheet"
+      href="~/css/profile.css"
+      asp-append-version="true" />
+<link rel="stylesheet"
+      href="~/css/friend.css"
+      asp-append-version="true" />
+
+<div class="profile-page narrow-page">
+
+    <section class="profile-card profile-list-card">
+
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">THƯ VIỆN</span>
+                <h1>Ảnh của @Model.ProfileName</h1>
+                <p>@Model.Photos.Count hình ảnh từ các bài viết</p>
+            </div>
+
+            <a asp-action="Index"
+               asp-route-id="@Model.ProfileId"
+               class="profile-action secondary">
+                <i class="bi bi-arrow-left"></i>
+                Hồ sơ
+            </a>
+        </div>
+
+        @if (!Model.Photos.Any())
+        {
+            <div class="friend-empty-state">
+                <i class="bi bi-images"></i>
+                <h3>Chưa có ảnh</h3>
+                <p>Ảnh trong bài viết sẽ xuất hiện tại đây.</p>
+            </div>
+        }
+        else
+        {
+            <div class="profile-photo-grid">
+
+                @foreach (var photo in Model.Photos)
+                {
+                    <a asp-controller="Post"
+                       asp-action="Details"
+                       asp-route-id="@photo.PostId"
+                       class="profile-photo-item">
+
+                        <img src="@photo.ImageUrl"
+                             alt="Ảnh bài viết"
+                             loading="lazy" />
+
+                        <span>
+                            <i class="bi bi-calendar3"></i>
+                            @photo.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")
+                        </span>
+
+                    </a>
+                }
+
+            </div>
+        }
+
+    </section>
+
+</div>

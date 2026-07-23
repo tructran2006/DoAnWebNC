@@ -1,0 +1,53 @@
+@model DoAn.ViewModels.Post.CreateCommentViewModel
+
+<form asp-controller="Comment"
+      asp-action="Create"
+      method="post"
+      class="comment-create-form">
+
+    @Html.AntiForgeryToken()
+
+    <input asp-for="PostId" type="hidden" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="comment-validation-summary">
+    </div>
+
+    @if (TempData["CommentError"] is string commentError)
+    {
+        <div class="comment-error-message">
+            <i class="bi bi-exclamation-circle"></i>
+            <span>@commentError</span>
+        </div>
+    }
+
+    <div class="comment-input-row">
+        <span class="comment-input-icon">
+            <i class="bi bi-chat-left-text"></i>
+        </span>
+
+        <div class="comment-input-content">
+            <textarea asp-for="Content"
+                      rows="3"
+                      maxlength="1000"
+                      class="comment-textarea"
+                      placeholder="Viết bình luận của bạn..."></textarea>
+
+            <span asp-validation-for="Content"
+                  class="comment-field-error">
+            </span>
+        </div>
+    </div>
+
+    <div class="comment-form-actions">
+        <span class="comment-form-note">
+            Hãy trao đổi lịch sự và tôn trọng mọi người.
+        </span>
+
+        <button type="submit"
+                class="comment-submit-button">
+            <i class="bi bi-send-fill"></i>
+            Gửi bình luận
+        </button>
+    </div>
+</form>

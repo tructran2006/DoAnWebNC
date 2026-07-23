@@ -1,0 +1,54 @@
+@model DoAn.ViewModels.Post.FeedPostViewModel
+<article class="social-post-card" id="post-card-@Model.Id">
+    <header class="social-post-header">
+        <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId" class="social-post-avatar-link">
+            @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
+            {
+                <img src="@Model.AvatarUrl" class="social-post-avatar" alt="Ảnh đại diện" onerror="this.style.display='none';this.nextElementSibling.classList.remove('d-none');" />
+                <span class="social-post-avatar-fallback d-none"><i class="bi bi-person-fill"></i></span>
+}
+else
+{
+                <span class="social-post-avatar-fallback"><i class="bi bi-person-fill"></i></span>
+            }
+        </a>
+        <div class="social-post-user"><a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId" class="social-post-name">@(string.IsNullOrWhiteSpace(Model.FullName) ? "Người dùng" : Model.FullName)</a><div class="social-post-date"><i class="bi bi-clock"></i><span>@(Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</span>@if(Model.UpdatedAt.HasValue){
+        <span>· Đã chỉnh sửa</span>
+                }
+</div></div>
+        @if (Model.IsOwner)
+        {
+            <div class="post-owner-menu dropdown"><button class="post-menu-button" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil-square"></i>Sửa bài viết</a></li><li><form asp-controller="Post" asp-action="Delete" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@Model.Id" /><button class="dropdown-item text-danger" type="submit"><i class="bi bi-trash3"></i>Xóa bài viết</button></form></li></ul></div>
+        }
+    </header>
+    @if (!string.IsNullOrWhiteSpace(Model.Content))
+    {
+        <div class="social-post-body">@Model.Content.Trim()</div>
+    }
+    @if (Model.MediaItems.Any())
+    {
+        <div class="post-media-grid media-count-@Math.Min(Model.MediaItems.Count, 4)">
+            @for (var i = 0; i < Model.MediaItems.Count; i++)
+            {
+                var media = Model.MediaItems[i]; var hidden = i >= 4;
+                <a asp-controller="Post" asp-action="Details" asp-route-id="@Model.Id" class="post-media-item @(hidden?"media-hidden":"")">@if(media.MediaType=="video"){
+                <video src="@media.MediaUrl" controls preload="metadata"></video>
+            }else
+            {
+
+                <img src="@media.MediaUrl" alt="Ảnh bài viết" loading="lazy" />
+            }
+    @if (i == 3 && Model.MediaItems.Count > 4)
+    {
+                <span class="media-more">+@(Model.MediaItems.Count - 4)</span>
+            }
+    </a>
+        }
+    </div>
+        }
+    <div class="social-post-stats"><span><i class="bi bi-heart-fill social-heart-icon"></i><span id="like-stat-@Model.Id">@Model.LikeCount</span> lượt thích</span><a asp-controller="Post" asp-action="Details" asp-route-id="@Model.Id"><i class="bi bi-chat-dots"></i>@Model.CommentCount bình luận</a></div>
+    <div class="social-post-actions"><button type="button" class="social-post-action post-like-button @(Model.IsLikedByCurrentUser ? "is-liked" : "")" data-post-id="@Model.Id"><i class="post-like-icon bi @(Model.IsLikedByCurrentUser ? "bi-heart-fill" : "bi-heart")"></i><span class="post-like-label">@(Model.IsLikedByCurrentUser ? "Đã thích" : "Thích")</span><span class="post-like-action-count">(@Model.LikeCount)</span></button><a asp-controller="Post" asp-action="Details" asp-route-id="@Model.Id" class="social-post-action"><i class="bi bi-chat-dots"></i>Bình luận (@Model.CommentCount)</a></div>
+</article>
+<script>
+    if(!window.socialPostLikeInitialized){window.socialPostLikeInitialized=true;document.addEventListener('click',async e=>{const b=e.target.closest('.post-like-button');if(!b||b.disabled)return;const id=Number(b.dataset.postId),token=document.querySelector('#ajax-token-form input[name="__RequestVerificationToken"]')?.value;if(!id||!token)return;b.disabled=true;try{const r=await fetch('/Post/ToggleLikeAjax',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-Requested-With':'XMLHttpRequest','RequestVerificationToken':token},body:JSON.stringify({postId:id})});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||'Không thể cập nhật lượt thích.');b.classList.toggle('is-liked',d.liked);b.querySelector('.post-like-icon').className=`post-like-icon bi ${d.liked?'bi-heart-fill':'bi-heart'}`;b.querySelector('.post-like-label').textContent=d.liked?'Đã thích':'Thích';b.querySelector('.post-like-action-count').textContent=`(${d.likeCount})`;document.getElementById(`like-stat-${id}`).textContent=d.likeCount;}catch(x){alert(x.message);}finally{b.disabled=false;}});}
+</script>

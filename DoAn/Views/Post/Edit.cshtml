@@ -1,0 +1,14 @@
+@model DoAn.ViewModels.Post.EditPostViewModel
+@{ ViewData["Title"] = "Chỉnh sửa bài viết"; }
+<link rel="stylesheet" href="~/css/post.css" asp-append-version="true" />
+<div class="post-page post-form-page"><section class="post-form-card">
+<header class="post-page-header"><div class="post-page-heading"><span class="post-page-icon"><i class="bi bi-pencil"></i></span><div><h1>Chỉnh sửa bài viết</h1><p>Giữ, xóa hoặc thêm ảnh/video mới.</p></div></div><a asp-controller="Profile" asp-action="Index" class="post-back-button"><i class="bi bi-arrow-left"></i>Quay lại</a></header>
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="post-form">@Html.AntiForgeryToken()<input asp-for="Id" type="hidden" />
+<div asp-validation-summary="ModelOnly" class="post-validation-summary"></div>
+<div class="post-form-group"><label asp-for="Content" class="post-form-label"><i class="bi bi-chat-left-text"></i>Nội dung</label><textarea asp-for="Content" rows="7" class="post-form-control post-content-input"></textarea><span asp-validation-for="Content" class="text-danger"></span></div>
+@if(Model.CurrentMedia.Any()) { <div class="post-form-group"><label class="post-form-label"><i class="bi bi-collection-play"></i>Media hiện tại</label><div class="current-media-grid">@foreach(var media in Model.CurrentMedia){<label class="current-media-item">@if(media.MediaType=="video"){<video src="@media.MediaUrl" controls></video>}else{<img src="@media.MediaUrl" alt="" />}<span><input type="checkbox" name="RemoveMediaIds" value="@media.Id" /> Xóa media này</span></label>}</div></div> }
+<div class="post-form-group"><label class="post-form-label"><i class="bi bi-plus-square"></i>Thêm ảnh/video mới</label><label for="mediaFiles" class="post-upload-box"><span class="post-upload-icon"><i class="bi bi-cloud-arrow-up"></i></span><strong>Chọn thêm nhiều file</strong><small>Tổng media trong bài tối đa 10 file.</small><input asp-for="MediaFiles" id="mediaFiles" type="file" multiple accept="image/*,video/*" class="post-file-input" /></label><span asp-validation-for="MediaFiles" class="text-danger"></span></div>
+<div id="mediaPreview" class="multi-media-preview"></div>
+<div class="post-form-actions"><a asp-controller="Profile" asp-action="Index" class="post-secondary-button">Hủy</a><button class="post-primary-button" type="submit"><i class="bi bi-check2-circle"></i>Lưu thay đổi</button></div>
+</form></section></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /><script>(()=>{const i=document.getElementById('mediaFiles'),p=document.getElementById('mediaPreview');i?.addEventListener('change',()=>{p.innerHTML='';[...(i.files||[])].forEach(f=>{const u=URL.createObjectURL(f),d=document.createElement('div');d.className='multi-preview-item';d.innerHTML=f.type.startsWith('video/')?`<video src="${u}" controls></video><span>${f.name}</span>`:`<img src="${u}" alt=""><span>${f.name}</span>`;p.appendChild(d);});});})();</script> }

@@ -1,0 +1,365 @@
+﻿@using System.Security.Claims
+
+@{
+    string currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString()
+        ?? string.Empty;
+
+    string adminName =
+        User.FindFirstValue(ClaimTypes.Name)
+        ?? User.Identity?.Name
+        ?? "Administrator";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>
+        @ViewData["Title"] - Quản trị hệ thống
+    </title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/admin.css"
+          asp-append-version="true" />
+
+</head>
+
+<body>
+
+    <div class="admin-layout">
+
+        <!-- SIDEBAR -->
+
+        <aside class="admin-sidebar"
+               id="adminSidebar">
+
+            <div class="admin-brand">
+
+                <a asp-controller="Admin"
+                   asp-action="Dashboard"
+                   class="admin-brand-link">
+
+                    <span class="admin-brand-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </span>
+
+                    <span class="admin-brand-content">
+
+                        <strong>
+                            Social Admin
+                        </strong>
+
+                        <small>
+                            Management System
+                        </small>
+
+                    </span>
+
+                </a>
+
+                <button type="button"
+                        class="admin-sidebar-close"
+                        id="adminSidebarClose"
+                        aria-label="Đóng menu">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+            </div>
+
+            <div class="admin-sidebar-section-title">
+                TỔNG QUAN
+            </div>
+
+            <nav class="admin-menu">
+
+                <a asp-controller="Admin"
+                   asp-action="Dashboard"
+                   class="admin-menu-link @(currentAction == "Dashboard" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Users"
+                   class="admin-menu-link @(currentAction is "Users" or "UserDetails" or "EditUser" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </span>
+
+                    <span>
+                        Người dùng
+                    </span>
+
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Posts"
+                   class="admin-menu-link @(currentAction is "Posts" or "EditPost" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+                        <i class="fa-solid fa-newspaper"></i>
+                    </span>
+
+                    <span>
+                        Bài viết
+                    </span>
+
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Comments"
+                   class="admin-menu-link @(currentAction == "Comments" ? "active" : "")">
+
+                    <span class="admin-menu-icon">
+                        <i class="fa-solid fa-comments"></i>
+                    </span>
+
+                    <span>
+                        Bình luận
+                    </span>
+
+                </a>
+
+            </nav>
+
+            <div class="admin-sidebar-section-title">
+                HỆ THỐNG
+            </div>
+
+            <nav class="admin-menu">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="admin-menu-link">
+
+                    <span class="admin-menu-icon">
+                        <i class="fa-solid fa-house"></i>
+                    </span>
+
+                    <span>
+                        Trang người dùng
+                    </span>
+
+                </a>
+
+                <form asp-controller="Auth"
+                      asp-action="Logout"
+                      method="post"
+                      class="admin-logout-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="admin-menu-link admin-menu-button">
+
+                        <span class="admin-menu-icon">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </span>
+
+                        <span>
+                            Đăng xuất
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </nav>
+
+            <div class="admin-sidebar-footer">
+
+                <div class="admin-sidebar-user">
+
+                    <span class="admin-sidebar-avatar">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            @adminName
+                        </strong>
+
+                        <small>
+                            Quản trị viên
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+        <div class="admin-sidebar-overlay"
+             id="adminSidebarOverlay">
+        </div>
+
+        <!-- MAIN -->
+
+        <div class="admin-main">
+
+            <header class="admin-topbar">
+
+                <div class="admin-topbar-left">
+
+                    <button type="button"
+                            class="admin-menu-toggle"
+                            id="adminMenuToggle"
+                            aria-label="Mở menu">
+
+                        <i class="fa-solid fa-bars"></i>
+
+                    </button>
+
+                    <div>
+
+                        <h1>
+                            @ViewData["Title"]
+                        </h1>
+
+                        <p>
+                            @DateTime.Now.ToString("dd/MM/yyyy")
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="admin-topbar-right">
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="admin-topbar-action"
+                       title="Trang người dùng">
+
+                        <i class="fa-solid fa-house"></i>
+
+                    </a>
+
+                    <div class="admin-topbar-profile">
+
+                        <span class="admin-topbar-avatar">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                @adminName
+                            </strong>
+
+                            <small>
+                                Administrator
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <main class="admin-page-content">
+
+                @if (TempData["SuccessMessage"] is string successMessage)
+                {
+                    <div class="admin-alert admin-alert-success">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span>
+                            @successMessage
+                        </span>
+
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] is string errorMessage)
+                {
+                    <div class="admin-alert admin-alert-danger">
+
+                        <i class="fa-solid fa-circle-exclamation"></i>
+
+                        <span>
+                            @errorMessage
+                        </span>
+
+                    </div>
+                }
+
+                @RenderBody()
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <script>
+        (() => {
+            const sidebar =
+                document.getElementById("adminSidebar");
+
+            const toggle =
+                document.getElementById("adminMenuToggle");
+
+            const close =
+                document.getElementById("adminSidebarClose");
+
+            const overlay =
+                document.getElementById("adminSidebarOverlay");
+
+            function openSidebar() {
+                sidebar?.classList.add("open");
+                overlay?.classList.add("show");
+                document.body.classList.add("admin-sidebar-open");
+            }
+
+            function closeSidebar() {
+                sidebar?.classList.remove("open");
+                overlay?.classList.remove("show");
+                document.body.classList.remove("admin-sidebar-open");
+            }
+
+            toggle?.addEventListener("click", openSidebar);
+            close?.addEventListener("click", closeSidebar);
+            overlay?.addEventListener("click", closeSidebar);
+
+            window.addEventListener("resize", function () {
+                if (window.innerWidth > 900) {
+                    closeSidebar();
+                }
+            });
+        })();
+    </script>
+
+    @await RenderSectionAsync(
+    "Scripts",
+        required: false)
+
+</body>
+
+</html>

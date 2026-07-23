@@ -1,0 +1,132 @@
+﻿@model DoAn.ViewModels.Admin.EditPostViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa bài viết";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="admin-card admin-form-card">
+
+    <div class="admin-card-header">
+
+        <div>
+            <span class="admin-eyebrow">
+                QUẢN LÝ NỘI DUNG
+            </span>
+
+            <h2>Chỉnh sửa bài viết</h2>
+
+            <p>
+                Cập nhật nội dung và trạng thái bài viết.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Posts"
+           class="admin-btn admin-btn-secondary">
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Quay lại
+
+        </a>
+
+    </div>
+
+    <form asp-controller="Admin"
+          asp-action="EditPost"
+          method="post"
+          class="admin-form">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Id"
+               type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="admin-validation-summary">
+        </div>
+
+        <div class="admin-form-group">
+
+            <label asp-for="Content"></label>
+
+            <textarea asp-for="Content"
+                      rows="8"
+                      class="admin-form-control"
+                      placeholder="Nhập nội dung bài viết..."></textarea>
+
+            <span asp-validation-for="Content"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+        <div class="admin-post-status-options">
+
+            <label class="admin-checkbox-card">
+
+                <input asp-for="IsHidden"
+                       type="checkbox" />
+
+                <span class="admin-checkbox-icon admin-checkbox-warning">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </span>
+
+                <span>
+                    <strong>Ẩn bài viết</strong>
+
+                    <small>
+                        Bài viết không xuất hiện trên bảng tin.
+                    </small>
+                </span>
+
+            </label>
+
+            <label class="admin-checkbox-card">
+
+                <input asp-for="IsDeleted"
+                       type="checkbox" />
+
+                <span class="admin-checkbox-icon admin-checkbox-danger">
+                    <i class="fa-solid fa-trash"></i>
+                </span>
+
+                <span>
+                    <strong>Đánh dấu đã xóa</strong>
+
+                    <small>
+                        Bài viết được chuyển sang trạng thái đã xóa.
+                    </small>
+                </span>
+
+            </label>
+
+        </div>
+
+        <div class="admin-form-actions">
+
+            <a asp-controller="Admin"
+               asp-action="Posts"
+               class="admin-btn admin-btn-secondary">
+
+                Hủy
+
+            </a>
+
+            <button type="submit"
+                    class="admin-btn admin-btn-primary">
+
+                <i class="fa-solid fa-floppy-disk"></i>
+                Lưu thay đổi
+
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

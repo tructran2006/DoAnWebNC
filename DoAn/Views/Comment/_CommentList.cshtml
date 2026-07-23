@@ -1,0 +1,28 @@
+@model IEnumerable<DoAn.ViewModels.Post.CommentItemViewModel>
+
+@{
+    var comments = Model?.ToList()
+        ?? new List<DoAn.ViewModels.Post.CommentItemViewModel>();
+}
+
+@if (comments.Count == 0)
+{
+    <div class="comment-empty-state">
+        <div class="comment-empty-icon">
+            <i class="bi bi-chat-square-text"></i>
+        </div>
+
+        <h3>Chưa có bình luận</h3>
+        <p>Hãy trở thành người bình luận đầu tiên.</p>
+    </div>
+}
+else
+{
+    <div class="comment-list">
+        @foreach (var comment in comments)
+        {
+            <partial name="~/Views/Comment/_CommentItem.cshtml"
+                     model="comment" />
+        }
+    </div>
+}

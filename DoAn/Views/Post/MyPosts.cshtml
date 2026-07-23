@@ -1,0 +1,6 @@
+@model IEnumerable<DoAn.ViewModels.Post.FeedPostViewModel>
+@{ ViewData["Title"]="Bài viết của tôi"; var posts=Model?.ToList()??new(); }
+<link rel="stylesheet" href="~/css/post.css" asp-append-version="true" /><link rel="stylesheet" href="~/css/post-card.css" asp-append-version="true" />
+<form id="ajax-token-form" class="d-none">@Html.AntiForgeryToken()</form>
+<div class="post-page post-list-page"><header class="my-posts-header"><div class="post-page-heading"><span class="post-page-icon"><i class="bi bi-file-earmark-post"></i></span><div><h1>Bài viết của tôi</h1><p>@posts.Count bài viết</p></div></div><a asp-action="Create" class="post-primary-button"><i class="bi bi-plus-lg"></i>Tạo bài viết</a></header>
+@if(!posts.Any()){<section class="post-empty-state"><div class="post-empty-icon"><i class="bi bi-file-earmark-post"></i></div><h2>Chưa có bài viết</h2><p>Hãy tạo bài viết đầu tiên.</p></section>}else{@foreach(var post in posts){<partial name="~/Views/Post/_PostCard.cshtml" model="post" />}}</div>

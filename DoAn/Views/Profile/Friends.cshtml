@@ -1,0 +1,104 @@
+@model DoAn.ViewModels.Profile.ProfileFriendsViewModel
+
+@{
+    ViewData["Title"] = $"Bạn bè của {Model.ProfileName}";
+}
+
+<link rel="stylesheet"
+      href="~/css/profile.css"
+      asp-append-version="true" />
+<link rel="stylesheet"
+      href="~/css/friend.css"
+      asp-append-version="true" />
+
+<div class="profile-page narrow-page">
+
+    <section class="profile-card profile-list-card">
+
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">KẾT NỐI</span>
+                <h1>Bạn bè của @Model.ProfileName</h1>
+                <p>@Model.Friends.Count người bạn</p>
+            </div>
+
+            <a asp-action="Index"
+               asp-route-id="@Model.ProfileId"
+               class="profile-action secondary">
+                <i class="bi bi-arrow-left"></i>
+                Hồ sơ
+            </a>
+        </div>
+
+        @if (!Model.Friends.Any())
+        {
+            <div class="friend-empty-state">
+                <i class="bi bi-people"></i>
+                <h3>Chưa có bạn bè</h3>
+                <p>Danh sách bạn bè hiện đang trống.</p>
+            </div>
+        }
+        else
+        {
+            <div class="profile-friend-grid">
+
+                @foreach (var friend in Model.Friends)
+                {
+                    <article class="profile-friend-card">
+
+                        <a asp-action="Index"
+                           asp-route-id="@friend.Id"
+                           class="profile-friend-avatar">
+
+                            @if (!string.IsNullOrWhiteSpace(friend.AvatarUrl))
+                            {
+                                <img src="@friend.AvatarUrl"
+                                     alt="Ảnh đại diện của @friend.FullName"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';" />
+                                <span class="profile-friend-avatar-fallback" style="display:none;">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="profile-friend-avatar-fallback">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+
+                        </a>
+
+                        <div class="profile-friend-info">
+                            <a asp-action="Index"
+                               asp-route-id="@friend.Id"
+                               class="profile-friend-name">
+                                @friend.FullName
+                            </a>
+
+                            <span class="profile-friend-username">
+                                @@@friend.Username
+                            </span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(friend.Bio)
+                                    ? "Chưa có giới thiệu."
+                                    : friend.Bio)
+                            </p>
+                        </div>
+
+                        <a asp-action="Index"
+                           asp-route-id="@friend.Id"
+                           class="profile-action primary profile-friend-button">
+                            <i class="bi bi-person"></i>
+                            Xem hồ sơ
+                        </a>
+
+                    </article>
+                }
+
+            </div>
+        }
+
+    </section>
+
+</div>

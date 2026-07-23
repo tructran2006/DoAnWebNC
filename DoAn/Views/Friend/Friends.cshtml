@@ -1,0 +1,344 @@
+@model DoAn.ViewModels.FriendPageViewModel
+@using DoAn.Models
+
+@{
+    ViewData["Title"] = "Bạn bè";
+
+    var requestUsers =
+        ViewBag.RequestUsers as Dictionary<int, User>
+        ?? new Dictionary<int, User>();
+}
+
+<link rel="stylesheet"
+      href="~/css/friend.css"
+      asp-append-version="true" />
+
+<div class="friend-page">
+
+    <header class="friend-page-header">
+        <div>
+            <span class="friend-eyebrow">KẾT NỐI</span>
+            <h1>
+                <i class="bi bi-people-fill"></i>
+                Bạn bè
+            </h1>
+            <p>Quản lý lời mời, tìm bạn mới và xem danh sách bạn bè của bạn.</p>
+        </div>
+
+    </header>
+
+    <section class="friend-panel">
+        <div class="friend-section-header">
+            <div>
+                <span class="friend-section-icon friend-request-icon">
+                    <i class="bi bi-person-plus-fill"></i>
+                </span>
+                <div>
+                    <h2>Lời mời kết bạn</h2>
+                    <p>@Model.Requests.Count lời mời đang chờ xử lý</p>
+                </div>
+            </div>
+        </div>
+
+        @if (!Model.Requests.Any())
+        {
+            <div class="friend-empty-state friend-page-empty">
+                <i class="bi bi-person-check"></i>
+                <h3>Không có lời mời mới</h3>
+                <p>Khi có người gửi lời mời kết bạn, thông tin sẽ xuất hiện tại đây.</p>
+            </div>
+        }
+        else
+        {
+            <div class="friend-page-grid">
+                @foreach (var request in Model.Requests)
+                {
+                    requestUsers.TryGetValue(request.SenderId, out var sender);
+
+                    <article class="friend-page-card">
+                        <a asp-controller="Profile"
+                           asp-action="Index"
+                           asp-route-id="@request.SenderId"
+                           class="friend-page-avatar">
+
+                            @if (!string.IsNullOrWhiteSpace(sender?.AvatarUrl))
+                            {
+                                <img src="@sender.AvatarUrl"
+                                     alt="Ảnh đại diện của @sender.FullName"
+                                     onerror="handleFriendAvatarError(this)" />
+                                <span class="friend-page-avatar-fallback d-none">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="friend-page-avatar-fallback">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+                        </a>
+
+                        <div class="friend-page-info">
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@request.SenderId"
+                               class="friend-page-name">
+                                @(string.IsNullOrWhiteSpace(sender?.FullName)
+                                    ? $"Người dùng #{request.SenderId}"
+                                    : sender.FullName)
+                            </a>
+
+                            @if (!string.IsNullOrWhiteSpace(sender?.Username))
+                            {
+                                <span class="friend-page-username">@@@sender.Username</span>
+                            }
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(sender?.Bio)
+                                    ? "Muốn kết nối với bạn."
+                                    : sender.Bio)
+                            </p>
+                        </div>
+
+                        <div class="friend-page-actions">
+                            <form asp-controller="Friend"
+                                  asp-action="Accept"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@request.Id" />
+                                <button type="submit"
+                                        class="friend-button friend-button-primary">
+                                    <i class="bi bi-check2"></i>
+                                    Chấp nhận
+                                </button>
+                            </form>
+
+                            <form asp-controller="Friend"
+                                  asp-action="Reject"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@request.Id" />
+                                <button type="submit"
+                                        class="friend-button friend-button-danger">
+                                    <i class="bi bi-x-lg"></i>
+                                    Từ chối
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="friend-panel">
+        <div class="friend-section-header">
+            <div>
+                <span class="friend-section-icon friend-suggest-icon">
+                    <i class="bi bi-stars"></i>
+                </span>
+                <div>
+                    <h2>Gợi ý kết bạn</h2>
+                    <p>Những người bạn có thể biết</p>
+                </div>
+            </div>
+        </div>
+
+        @if (!Model.SuggestedUsers.Any())
+        {
+            <div class="friend-empty-state friend-page-empty">
+                <i class="bi bi-search"></i>
+                <h3>Chưa có gợi ý mới</h3>
+                <p>Hãy quay lại sau để xem thêm những người dùng khác.</p>
+            </div>
+        }
+        else
+        {
+            <div class="friend-page-grid">
+                @foreach (var user in Model.SuggestedUsers)
+                {
+                    <article class="friend-page-card">
+                        <a asp-controller="Profile"
+                           asp-action="Index"
+                           asp-route-id="@user.Id"
+                           class="friend-page-avatar">
+
+                            @if (!string.IsNullOrWhiteSpace(user.AvatarUrl))
+                            {
+                                <img src="@user.AvatarUrl"
+                                     alt="Ảnh đại diện của @user.FullName"
+                                     onerror="handleFriendAvatarError(this)" />
+                                <span class="friend-page-avatar-fallback d-none">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="friend-page-avatar-fallback">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+                        </a>
+
+                        <div class="friend-page-info">
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@user.Id"
+                               class="friend-page-name">
+                                @(string.IsNullOrWhiteSpace(user.FullName)
+                                    ? "Người dùng"
+                                    : user.FullName)
+                            </a>
+
+                            <span class="friend-page-username">@@@user.Username</span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(user.Bio)
+                                    ? "Chưa có giới thiệu."
+                                    : user.Bio)
+                            </p>
+                        </div>
+
+                        <div class="friend-page-actions friend-page-actions-single">
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@user.Id"
+                               class="friend-button friend-button-secondary">
+                                <i class="bi bi-person"></i>
+                                Xem hồ sơ
+                            </a>
+
+                            <form asp-controller="Friend"
+                                  asp-action="Send"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="receiverId"
+                                       value="@user.Id" />
+                                <button type="submit"
+                                        class="friend-button friend-button-primary">
+                                    <i class="bi bi-person-plus"></i>
+                                    Kết bạn
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="friend-panel">
+        <div class="friend-section-header">
+            <div>
+                <span class="friend-section-icon friend-list-icon">
+                    <i class="bi bi-people-fill"></i>
+                </span>
+                <div>
+                    <h2>Danh sách bạn bè</h2>
+                    <p>@Model.Friends.Count người bạn</p>
+                </div>
+            </div>
+        </div>
+
+        @if (!Model.Friends.Any())
+        {
+            <div class="friend-empty-state friend-page-empty">
+                <i class="bi bi-people"></i>
+                <h3>Chưa có bạn bè</h3>
+                <p>Gửi lời mời kết bạn để bắt đầu kết nối với mọi người.</p>
+            </div>
+        }
+        else
+        {
+            <div class="friend-page-grid">
+                @foreach (var friend in Model.Friends)
+                {
+                    <article class="friend-page-card">
+                        <a asp-controller="Profile"
+                           asp-action="Index"
+                           asp-route-id="@friend.Id"
+                           class="friend-page-avatar">
+
+                            @if (!string.IsNullOrWhiteSpace(friend.AvatarUrl))
+                            {
+                                <img src="@friend.AvatarUrl"
+                                     alt="Ảnh đại diện của @friend.FullName"
+                                     onerror="handleFriendAvatarError(this)" />
+                                <span class="friend-page-avatar-fallback d-none">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="friend-page-avatar-fallback">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                            }
+                        </a>
+
+                        <div class="friend-page-info">
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@friend.Id"
+                               class="friend-page-name">
+                                @(string.IsNullOrWhiteSpace(friend.FullName)
+                                    ? "Người dùng"
+                                    : friend.FullName)
+                            </a>
+
+                            <span class="friend-page-username">@@@friend.Username</span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(friend.Bio)
+                                    ? "Chưa có giới thiệu."
+                                    : friend.Bio)
+                            </p>
+                        </div>
+
+                        <div class="friend-page-actions friend-page-actions-single">
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               asp-route-id="@friend.Id"
+                               class="friend-button friend-button-secondary">
+                                <i class="bi bi-person"></i>
+                                Xem hồ sơ
+                            </a>
+
+                            <form asp-controller="Friend"
+                                  asp-action="Remove"
+                                  method="post"
+                                  onsubmit="return confirm('Bạn có chắc muốn hủy kết bạn?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="friendId"
+                                       value="@friend.Id" />
+                                <button type="submit"
+                                        class="friend-button friend-button-danger">
+                                    <i class="bi bi-person-dash"></i>
+                                    Hủy kết bạn
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+</div>
+
+@section Scripts {
+    <script>
+        window.handleFriendAvatarError = function (image) {
+            image.style.display = "none";
+
+            const fallback = image.nextElementSibling;
+
+            if (fallback) {
+                fallback.classList.remove("d-none");
+                fallback.style.display = "grid";
+            }
+        };
+    </script>
+}
