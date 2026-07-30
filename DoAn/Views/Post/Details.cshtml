@@ -1,17 +1,23 @@
 @using DoAn.ViewModels.Post
 @model PostDetailsViewModel
 @{
-    ViewData["Title"] = "Chi tiết bài viết"; var card = new FeedPostViewModel { Id = Model.Id, UserId = Model.UserId, FullName = Model.FullName, AvatarUrl = Model.AvatarUrl, Content = Model.Content, CreatedAt = Model.CreatedAt, UpdatedAt = Model.UpdatedAt, LikeCount = Model.LikeCount, CommentCount = Model.Comments.Count, IsLikedByCurrentUser = Model.IsLikedByCurrentUser, IsOwner = Model.IsOwner, MediaItems = Model.MediaItems }; ViewBag.PostId = Model.Id;
+    ViewData["Title"] = "Chi tiết bài viết";
+    var card = new FeedPostViewModel { Id = Model.Id, UserId = Model.UserId, FullName = Model.FullName, AvatarUrl = Model.AvatarUrl, Content = Model.Content, CreatedAt = Model.CreatedAt, UpdatedAt = Model.UpdatedAt, LikeCount = Model.LikeCount, CommentCount = Model.CommentCount, IsLikedByCurrentUser = Model.IsLikedByCurrentUser, IsOwner = Model.IsOwner, MediaItems = Model.MediaItems }; ViewBag.PostId = Model.Id;
 }
 <link rel="stylesheet" href="~/css/post.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/post-card.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/comment.css" asp-append-version="true" />
 <form id="ajax-token-form" class="d-none">@Html.AntiForgeryToken()</form>
 <div class="post-page post-details-page">
-    <div class="post-details-heading"><div><span class="post-details-eyebrow">BÀI VIẾT</span><h1>Chi tiết bài viết</h1></div><a asp-controller="Home" asp-action="Index" class="post-back-button"><i class="bi bi-arrow-left"></i>Bảng tin</a></div>
+    <div class="post-details-heading">
+        <div>
+            <span class="post-details-eyebrow">BÀI VIẾT</span>
+            <h1>Chi tiết bài viết</h1>
+        </div><a asp-controller="Home" asp-action="Index" class="post-back-button"><i class="bi bi-arrow-left"></i>Bảng tin</a>
+    </div>
     <partial name="~/Views/Post/_PostCard.cshtml" model="card" />
     <section id="comments" class="comment-section">
-        <header class="comment-section-header"><div><h2><i class="bi bi-chat-dots"></i>Bình luận</h2><p>@Model.Comments.Count bình luận</p></div></header>
+        <header class="comment-section-header"><div><h2><i class="bi bi-chat-dots"></i>Bình luận</h2><p>@Model.CommentCount bình luận</p></div></header>
         <partial name="~/Views/Comment/_CommentForm.cshtml" model="@(new CreateCommentViewModel { PostId = Model.Id })" />
         <partial name="~/Views/Comment/_CommentList.cshtml" model="Model.Comments" />
     </section>

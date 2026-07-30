@@ -10,6 +10,7 @@ public class PostDetailsViewModel
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public int LikeCount { get; set; }
+    public int CommentCount { get; set; }
     public bool IsLikedByCurrentUser { get; set; }
     public bool IsOwner { get; set; }
     public List<PostMediaViewModel> MediaItems { get; set; } = new();

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DoAn.Controllers;
 
-[Authorize]
+[Authorize]//đăng nhập mới đc sử dụng
 public class PostController : Controller
 {
     private readonly PostService _postService;
@@ -37,18 +37,18 @@ public class PostController : Controller
     }
 
     [HttpGet]
-    public IActionResult Create() => View(new CreatePostViewModel());
+    public IActionResult Create() => View(new CreatePostViewModel());//mở giao diện tạo bài
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreatePostViewModel model)
     {
-        model.MediaFiles ??= new List<IFormFile>();
+        model.MediaFiles ??= new List<IFormFile>();//??= nghĩa là nếu mediaf đg null thì gán danh sách rỗng
         var files = model.MediaFiles.Where(x => x.Length > 0).ToList();
 
         ValidateMediaCollection(files, 0);
         if (!ModelState.IsValid) return View(model);
-
+        //tạo post
         var post = new Post
         {
             UserId = GetCurrentUserId(),
@@ -57,7 +57,7 @@ public class PostController : Controller
             IsDeleted = false,
             IsHidden = false
         };
-
+        //lưu file
         for (var index = 0; index < files.Count; index++)
         {
             var saved = await SaveMediaAsync(files[index]);
@@ -69,14 +69,14 @@ public class PostController : Controller
                 CreatedAt = DateTime.UtcNow
             });
         }
-
+        //Lưu bài
         await _postService.CreateAsync(post);
         TempData["SuccessMessage"] = "Đăng bài viết thành công.";
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Home");//chuyển về home
     }
 
     [HttpGet]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(int id)// chi tiết bài đăng
     {
         if (id <= 0) return BadRequest();
 
@@ -84,14 +84,14 @@ public class PostController : Controller
         return model == null ? NotFound() : View(model);
     }
 
-    [HttpGet]
+    [HttpGet]//lấy bài viết sau đó chuyển sang view
     public async Task<IActionResult> MyPosts()
     {
         var posts = await _postService.GetMyPostsAsync(GetCurrentUserId());
         return View(posts);
     }
 
-    [HttpGet]
+    [HttpGet]//lấy bài viết để sửa
     public async Task<IActionResult> Edit(int id)
     {
         var post = await _postService.GetForEditAsync(id, GetCurrentUserId());
@@ -117,64 +117,107 @@ public class PostController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditPostViewModel model)
     {
+        // Lấy ID của người đang đăng nhập từ cookie authentication.
         var userId = GetCurrentUserId();
-        var post = await _postService.GetForEditAsync(model.Id, userId);
-        if (post == null) return NotFound();
 
+        // Lấy đúng bài viết thuộc về người đang đăng nhập.
+        // Entity Post được EF Core tracking để chỉ cập nhật các trường thay đổi.
+        var post = await _postService.GetForEditAsync(model.Id, userId);
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        // Tránh lỗi null khi form không gửi file hoặc không chọn media cần xóa.
         model.MediaFiles ??= new List<IFormFile>();
         model.RemoveMediaIds ??= new List<int>();
 
-        var removable = post.MediaItems
-            .Where(x => model.RemoveMediaIds.Contains(x.Id))
+        // Chỉ lấy những media thật sự thuộc bài viết hiện tại.
+        // Người dùng không thể gửi ID media của bài khác để xóa.
+        var removableMedia = post.MediaItems
+            .Where(media => model.RemoveMediaIds.Contains(media.Id))
             .ToList();
 
-        var newFiles = model.MediaFiles.Where(x => x.Length > 0).ToList();
-        ValidateMediaCollection(newFiles, post.MediaItems.Count - removable.Count);
+        // Chỉ xử lý các file có dữ liệu.
+        var newFiles = model.MediaFiles
+            .Where(file => file.Length > 0)
+            .ToList();
+
+        // Kiểm tra tổng số media sau khi xóa cũ và thêm mới.
+        var remainingMediaCount =
+            post.MediaItems.Count - removableMedia.Count;
+
+        ValidateMediaCollection(newFiles, remainingMediaCount);
 
         if (!ModelState.IsValid)
         {
+            // Khi validation lỗi, nạp lại danh sách media cũ để View hiển thị.
             model.CurrentMedia = post.MediaItems
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => new PostMediaViewModel
+                .OrderBy(media => media.DisplayOrder)
+                .Select(media => new PostMediaViewModel
                 {
-                    Id = x.Id,
-                    MediaUrl = x.MediaUrl,
-                    MediaType = x.MediaType,
-                    DisplayOrder = x.DisplayOrder
-                }).ToList();
+                    Id = media.Id,
+                    MediaUrl = media.MediaUrl,
+                    MediaType = media.MediaType,
+                    DisplayOrder = media.DisplayOrder
+                })
+                .ToList();
+
             return View(model);
         }
 
+        // Chỉ cập nhật nội dung của Post hiện tại.
+        // Không tạo Post mới nên PostId không thay đổi. Vì PostId giữ nguyên,
+        // toàn bộ Likes và Comments trước đó vẫn liên kết với bài viết này.
         post.Content = model.Content.Trim();
 
-        foreach (var media in removable)
+        // Xóa những PostMedia được người dùng chọn.
+        // Thao tác này chỉ tác động bảng PostMedia, không tác động Likes/Comments.
+        foreach (var media in removableMedia)
         {
             DeleteLocalMediaFile(media.MediaUrl);
             post.MediaItems.Remove(media);
         }
 
-        var nextOrder = post.MediaItems.Any()
-            ? post.MediaItems.Max(x => x.DisplayOrder) + 1
+        // Xác định thứ tự bắt đầu cho các media mới.
+        var nextDisplayOrder = post.MediaItems.Any()
+            ? post.MediaItems.Max(media => media.DisplayOrder) + 1
             : 0;
 
+        // Lưu file mới và thêm các dòng PostMedia mới vào cùng PostId.
         foreach (var file in newFiles)
         {
-            var saved = await SaveMediaAsync(file);
+            var savedMedia = await SaveMediaAsync(file);
+
             post.MediaItems.Add(new PostMedia
             {
-                MediaUrl = saved.Url,
-                MediaType = saved.Type,
-                DisplayOrder = nextOrder++,
+                MediaUrl = savedMedia.Url,
+                MediaType = savedMedia.Type,
+                DisplayOrder = nextDisplayOrder++,
                 CreatedAt = DateTime.UtcNow
             });
         }
 
-        var ordered = post.MediaItems.OrderBy(x => x.DisplayOrder).ToList();
-        for (var i = 0; i < ordered.Count; i++) ordered[i].DisplayOrder = i;
+        // Sắp xếp lại DisplayOrder sau khi xóa hoặc thêm media.
+        var orderedMedia = post.MediaItems
+            .OrderBy(media => media.DisplayOrder)
+            .ToList();
 
+        for (var index = 0; index < orderedMedia.Count; index++)
+        {
+            orderedMedia[index].DisplayOrder = index;
+        }
+
+        // SaveChangesAsync chỉ lưu Content, UpdatedAt và PostMedia thay đổi.
+        // Không có lệnh Remove đối với bảng Likes hoặc Comments.
         await _postService.UpdateAsync(post);
-        TempData["SuccessMessage"] = "Cập nhật bài viết thành công.";
-        return RedirectToAction("Index", "Profile");
+
+        TempData["SuccessMessage"] =
+            "Cập nhật bài viết thành công. Lượt thích và bình luận được giữ nguyên.";
+
+        return RedirectToAction(
+            nameof(Details),
+            new { id = post.Id });
     }
 
     [HttpPost]
@@ -204,7 +247,7 @@ public class PostController : Controller
         var post = await _postService.GetByIdAsync(model.PostId);
         if (post == null || post.IsHidden)
             return NotFound(new { success = false, message = "Không tìm thấy bài viết." });
-
+        //like hoặc unlike
         await _postService.ToggleLikeAsync(model.PostId, userId);
         var liked = await _postService.IsLikedAsync(model.PostId, userId);
         var likeCount = await _postService.GetLikeCountAsync(model.PostId);

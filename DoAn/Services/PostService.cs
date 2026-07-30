@@ -55,9 +55,19 @@ public class PostService
         await _context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Lưu thay đổi của bài viết đang được DbContext theo dõi.
+    /// Hàm này KHÔNG tạo Post mới và KHÔNG xóa Likes/Comments,
+    /// vì vậy số lượt thích và bình luận cũ vẫn được giữ nguyên.
+    /// </summary>
     public async Task UpdateAsync(Post post)
     {
+        // Chỉ cập nhật thời gian chỉnh sửa của bài viết.
         post.UpdatedAt = DateTime.UtcNow;
+
+        // Post được lấy bằng GetForEditAsync nên đã được EF Core tracking.
+        // Không gọi _context.Posts.Update(post) để tránh đánh dấu toàn bộ
+        // graph quan hệ là Modified ngoài ý muốn.
         await _context.SaveChangesAsync();
     }
 
@@ -143,6 +153,7 @@ public class PostService
             CreatedAt = feedPost.CreatedAt,
             UpdatedAt = feedPost.UpdatedAt,
             LikeCount = feedPost.LikeCount,
+            CommentCount = feedPost.CommentCount,
             IsLikedByCurrentUser = feedPost.IsLikedByCurrentUser,
             IsOwner = feedPost.IsOwner,
             MediaItems = feedPost.MediaItems

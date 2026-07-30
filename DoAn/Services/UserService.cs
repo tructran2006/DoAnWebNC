@@ -1,6 +1,7 @@
 using DoAn.Data;
 using DoAn.Models;
 using DoAn.Models.Enums;
+using DoAn.ViewModels.Admin;
 using Microsoft.EntityFrameworkCore;
 
 namespace DoAn.Services;
@@ -157,5 +158,52 @@ public class UserService
             .AnyAsync(x =>
                 x.Id != excludedUserId &&
                 x.Email.ToLower() == value);
+    }
+
+    /// <summary>
+    /// Lấy đầy đủ dữ liệu của một người dùng để Admin xem chi tiết.
+    /// Hàm này đọc dữ liệu từ nhiều bảng và gom lại thành UserDetailsViewModel.
+    /// AsNoTracking được dùng vì đây chỉ là thao tác xem, không chỉnh sửa Entity.
+    /// </summary>
+    public async Task<UserDetailsViewModel?> GetDetailsAsync(int userId)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == userId);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        return new UserDetailsViewModel
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            Phone = user.Phone,
+            FullName = user.FullName,
+            AvatarUrl = user.AvatarUrl,
+            CoverUrl = user.CoverUrl,
+            Bio = user.Bio,
+            Role = user.Role,
+            Status = user.Status,
+            CreatedAt = user.CreatedAt,
+            LastLoginAt = user.LastLoginAt,
+
+            // Đếm dữ liệu liên quan trực tiếp trong database.
+            TotalPosts = await _context.Posts.CountAsync(x =>
+                x.UserId == userId && !x.IsDeleted),
+
+            TotalComments = await _context.Comments.CountAsync(x =>
+                x.UserId == userId && !x.IsDeleted),
+
+            TotalLikes = await _context.Likes.CountAsync(x =>
+                x.UserId == userId),
+
+            // Bảng Friends lưu quan hệ hai chiều, nên chỉ cần đếm UserId.
+            TotalFriends = await _context.Friends.CountAsync(x =>
+                x.UserId == userId)
+        };
     }
 }

@@ -1,38 +1,21 @@
-﻿@model DoAn.Models.User
+@model DoAn.ViewModels.Admin.UserDetailsViewModel
 @using DoAn.Models.Enums
 
 @{
     ViewData["Title"] = "Chi tiết người dùng";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-
-    int postCount =
-        ViewBag.PostCount is int posts ? posts : 0;
-
-    int commentCount =
-        ViewBag.CommentCount is int comments ? comments : 0;
-
-    int likeCount =
-        ViewBag.LikeCount is int likes ? likes : 0;
 }
 
 <section class="admin-card">
 
     <div class="admin-card-header">
-
         <div>
-            <span class="admin-eyebrow">
-                THÔNG TIN TÀI KHOẢN
-            </span>
-
+            <span class="admin-eyebrow">THÔNG TIN TÀI KHOẢN</span>
             <h2>Chi tiết người dùng</h2>
-
-            <p>
-                Thông tin và trạng thái mới nhất của tài khoản.
-            </p>
+            <p>Dữ liệu được đọc trực tiếp từ database thông qua UserService.</p>
         </div>
 
         <div class="admin-header-actions">
-
             <a asp-action="Users"
                class="admin-btn admin-btn-secondary">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -45,55 +28,41 @@
                 <i class="fa-solid fa-pen"></i>
                 Chỉnh sửa
             </a>
-
         </div>
-
     </div>
 
+    <!-- Ảnh bìa, ảnh đại diện và tên người dùng -->
     <div class="admin-profile-preview">
-
         <div class="admin-cover-preview">
-
             @if (!string.IsNullOrWhiteSpace(Model.CoverUrl))
             {
-                <img src="@Model.CoverUrl"
-                     alt="Ảnh bìa" />
+                <img src="@Model.CoverUrl" alt="Ảnh bìa" />
             }
             else
             {
                 <i class="fa-regular fa-image"></i>
             }
-
         </div>
 
         <div class="admin-avatar-preview">
-
             @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
             {
-                <img src="@Model.AvatarUrl"
-                     alt="Ảnh đại diện" />
+                <img src="@Model.AvatarUrl" alt="Ảnh đại diện" />
             }
             else
             {
                 <i class="fa-solid fa-user"></i>
             }
-
         </div>
 
         <div class="admin-profile-name">
-            <h3>
-                @(string.IsNullOrWhiteSpace(Model.FullName)
-                                ? "Người dùng"
-                                : Model.FullName)
-            </h3>
-
+            <h3>@(string.IsNullOrWhiteSpace(Model.FullName) ? "Người dùng" : Model.FullName)</h3>
             <span>@@@Model.Username</span>
         </div>
-
     </div>
 
+    <!-- Thông tin cơ bản và các số liệu liên quan -->
     <div class="admin-details-grid">
-
         <div class="admin-detail-item">
             <span>ID tài khoản</span>
             <strong>#@Model.Id</strong>
@@ -105,37 +74,28 @@
         </div>
 
         <div class="admin-detail-item">
-            <span>Vai trò</span>
+            <span>Số điện thoại</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</strong>
+        </div>
 
-            <strong>
-                @(Model.Role == UserRole.Admin
-                                ? "Quản trị viên"
-                                : "Người dùng")
-            </strong>
+        <div class="admin-detail-item">
+            <span>Vai trò</span>
+            <strong>@(Model.Role == UserRole.Admin ? "Quản trị viên" : "Người dùng")</strong>
         </div>
 
         <div class="admin-detail-item">
             <span>Trạng thái</span>
-
             <strong>
                 @switch (Model.Status)
                 {
                     case UserStatus.Active:
-                        <span class="admin-status admin-status-success">
-                            Hoạt động
-                        </span>
+                        <span class="admin-status admin-status-success">Hoạt động</span>
                         break;
-
                     case UserStatus.Suspended:
-                        <span class="admin-status admin-status-warning">
-                            Tạm khóa
-                        </span>
+                        <span class="admin-status admin-status-warning">Tạm khóa</span>
                         break;
-
                     case UserStatus.Banned:
-                        <span class="admin-status admin-status-danger">
-                            Bị cấm
-                        </span>
+                        <span class="admin-status admin-status-danger">Bị cấm</span>
                         break;
                 }
             </strong>
@@ -143,109 +103,83 @@
 
         <div class="admin-detail-item">
             <span>Bài viết</span>
-            <strong>@postCount</strong>
+            <strong>@Model.TotalPosts</strong>
         </div>
 
         <div class="admin-detail-item">
-            <span>Bình luận</span>
-            <strong>@commentCount</strong>
+            <span>Bình luận đã viết</span>
+            <strong>@Model.TotalComments</strong>
         </div>
 
         <div class="admin-detail-item">
             <span>Lượt thích đã thực hiện</span>
-            <strong>@likeCount</strong>
+            <strong>@Model.TotalLikes</strong>
+        </div>
+
+        <div class="admin-detail-item">
+            <span>Bạn bè</span>
+            <strong>@Model.TotalFriends</strong>
         </div>
 
         <div class="admin-detail-item">
             <span>Ngày tạo</span>
+            <strong>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</strong>
+        </div>
+
+        <div class="admin-detail-item">
+            <span>Đăng nhập gần nhất</span>
             <strong>
-                @(Model.CreatedAt
-                                .ToLocalTime()
-                                .ToString("dd/MM/yyyy HH:mm"))
+                @(Model.LastLoginAt.HasValue
+                    ? Model.LastLoginAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                    : "Chưa có")
             </strong>
         </div>
 
         <div class="admin-detail-item admin-detail-full">
             <span>Giới thiệu</span>
-            <strong>
-                @(string.IsNullOrWhiteSpace(Model.Bio)
-                                ? "Chưa có giới thiệu."
-                                : Model.Bio)
-            </strong>
+            <strong>@(string.IsNullOrWhiteSpace(Model.Bio) ? "Chưa có giới thiệu." : Model.Bio)</strong>
         </div>
-
     </div>
 
+    <!-- Các thao tác thay đổi trạng thái phải dùng POST và AntiForgeryToken -->
     <div class="admin-detail-actions">
-
         @if (Model.Status == UserStatus.Active)
         {
-            <form asp-action="SuspendUser"
-                  method="post"
-                  class="admin-inline-form">
-
+            <form asp-action="SuspendUser" method="post" class="admin-inline-form">
                 @Html.AntiForgeryToken()
-
-                <input type="hidden"
-                       name="id"
-                       value="@Model.Id" />
-
+                <input type="hidden" name="id" value="@Model.Id" />
                 <button type="submit"
                         class="admin-btn admin-btn-warning"
                         onclick="return confirm('Khóa tài khoản này?');">
-
                     <i class="fa-solid fa-lock"></i>
                     Tạm khóa
-
                 </button>
-
             </form>
 
-            <form asp-action="BanUser"
-                  method="post"
-                  class="admin-inline-form">
-
+            <form asp-action="BanUser" method="post" class="admin-inline-form">
                 @Html.AntiForgeryToken()
-
-                <input type="hidden"
-                       name="id"
-                       value="@Model.Id" />
-
+                <input type="hidden" name="id" value="@Model.Id" />
                 <button type="submit"
                         class="admin-btn admin-btn-danger"
                         onclick="return confirm('Cấm tài khoản này?');">
-
                     <i class="fa-solid fa-ban"></i>
                     Cấm tài khoản
-
                 </button>
-
             </form>
         }
         else
         {
-            <form asp-action="ActivateUser"
-                  method="post"
-                  class="admin-inline-form">
-
+            <form asp-action="ActivateUser" method="post" class="admin-inline-form">
                 @Html.AntiForgeryToken()
-
-                <input type="hidden"
-                       name="id"
-                       value="@Model.Id" />
-
+                <input type="hidden" name="id" value="@Model.Id" />
                 <button type="submit"
                         class="admin-btn admin-btn-success"
                         onclick="return confirm('Mở lại tài khoản này?');">
-
                     <i class="fa-solid fa-lock-open"></i>
                     Mở tài khoản
-
                 </button>
-
             </form>
         }
-
     </div>
 
 </section>

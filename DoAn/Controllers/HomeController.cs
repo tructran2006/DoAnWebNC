@@ -11,6 +11,7 @@ namespace DoAn.Controllers;
 
 public class HomeController : Controller
 {
+    //Lấy bài viết
     private readonly AppDbContext _context;
     private readonly PostService _postService;
 
@@ -29,7 +30,7 @@ public class HomeController : Controller
 
         var posts = await _postService.GetFeedAsync(
             currentUserId);
-
+        //lấy gợi í người dùng
         var suggestedUsers = await _context.Users
             .AsNoTracking()
             .Where(user =>
@@ -38,7 +39,7 @@ public class HomeController : Controller
             .OrderByDescending(user => user.CreatedAt)
             .Take(4)
             .ToListAsync();
-
+        //lấy bài viết nổi bật
         var topPosts = await _context.Posts
             .AsNoTracking()
             .Where(post =>
@@ -53,11 +54,12 @@ public class HomeController : Controller
                 LikeCount = _context.Likes.Count(
                     like => like.PostId == post.Id)
             })
+            //Sắp xếp lượt like
             .OrderByDescending(post => post.LikeCount)
             .ThenByDescending(post => post.Id)
             .Take(4)
             .ToListAsync();
-
+        //gộp dữ liệu truyền sang view
         var model = new HomeViewModel
         {
             Posts = posts,
@@ -77,7 +79,7 @@ public class HomeController : Controller
 
         string? value = User.FindFirstValue(
             ClaimTypes.NameIdentifier);
-
+        //chuyển chữ thành số
         return int.TryParse(value, out int userId)
             ? userId
             : 0;

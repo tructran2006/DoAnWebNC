@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using DoAn.Data;
 using DoAn.Models;
 using DoAn.Models.Enums;
+using DoAn.Services;
 using DoAn.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,14 @@ namespace DoAn.Controllers;
 public class AdminController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly UserService _userService;
 
-    public AdminController(AppDbContext context)
+    public AdminController(
+        AppDbContext context,
+        UserService userService)
     {
         _context = context;
+        _userService = userService;
     }
 
     // =========================================================
@@ -66,33 +71,18 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> UserDetails(int id)
     {
-        // AsNoTracking giúp luôn lấy trạng thái mới nhất.
-        var user = await _context.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Id == id);
+        // Controller chỉ nhận ID từ URL và gọi Service lấy dữ liệu.
+        // Toàn bộ phần đọc Users, Posts, Comments, Likes và Friends
+        // được gom trong UserService.GetDetailsAsync().
+        var model = await _userService.GetDetailsAsync(id);
 
-        if (user == null)
+        if (model == null)
         {
-            TempData["ErrorMessage"] =
-                "Không tìm thấy tài khoản.";
-
+            TempData["ErrorMessage"] = "Không tìm thấy tài khoản.";
             return RedirectToAction(nameof(Users));
         }
 
-        ViewBag.PostCount = await _context.Posts
-            .CountAsync(post =>
-                post.UserId == id &&
-                !post.IsDeleted);
-
-        ViewBag.CommentCount = await _context.Comments
-            .CountAsync(comment =>
-                comment.UserId == id &&
-                !comment.IsDeleted);
-
-        ViewBag.LikeCount = await _context.Likes
-            .CountAsync(like => like.UserId == id);
-
-        return View(user);
+        return View(model);
     }
 
     // =========================================================
@@ -320,7 +310,7 @@ public class AdminController : Controller
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(item => item.Id == id);
-
+        
         if (user == null)
         {
             TempData["ErrorMessage"] =
