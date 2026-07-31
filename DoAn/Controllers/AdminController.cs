@@ -546,6 +546,7 @@ public class AdminController : Controller
         {
             Id = post.Id,
             Content = post.Content,
+            Visibility = post.Visibility,
             IsHidden = post.IsHidden,
             IsDeleted = post.IsDeleted
         };
@@ -579,6 +580,7 @@ public class AdminController : Controller
         }
 
         post.Content = model.Content.Trim();
+        post.Visibility = model.Visibility;
         post.IsHidden = model.IsHidden;
         post.IsDeleted = model.IsDeleted;
         post.UpdatedAt = DateTime.UtcNow;
@@ -738,9 +740,10 @@ public class AdminController : Controller
     public async Task<IActionResult> Comments()
     {
         var comments = await _context.Comments
-            .AsNoTracking()
-            .OrderByDescending(comment => comment.CreatedAt)
-            .ToListAsync();
+    .AsNoTracking()
+    .Where(comment => !comment.IsDeleted)
+    .OrderByDescending(comment => comment.CreatedAt)
+    .ToListAsync();
 
         var userIds = comments
             .Select(comment => comment.UserId)
@@ -765,6 +768,33 @@ public class AdminController : Controller
         return View(comments);
     }
 
+
+    // =========================================================
+    // DELETE COMMENT
+    // =========================================================
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteComment(int id)
+    {
+        var comment = await _context.Comments
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (comment == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy bình luận.";
+            return RedirectToAction(nameof(Comments));
+        }
+
+        // Xóa mềm
+        comment.IsDeleted = true;
+
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Đã xóa bình luận.";
+
+        return RedirectToAction(nameof(Comments));
+    }
     // =========================================================
     // HELPERS
     // =========================================================

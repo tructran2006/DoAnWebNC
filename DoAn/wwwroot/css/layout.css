@@ -102,7 +102,15 @@ body.light .topbar {
     gap: 12px;
     font-size: 30px;
     font-weight: 800;
+    color: inherit;
+    text-decoration: none;
+    transition: .25s;
 }
+
+    .logo:hover {
+        color: #38bdf8;
+        transform: scale(1.03);
+    }
 
     .logo i {
         color: #38bdf8;
@@ -358,4 +366,37 @@ body.light .card {
 
 body.light .notification-badge {
     border-color: #fff
+}
+
+/* ===========================
+   NAVBAR AVATAR
+=========================== */
+
+.profile-avatar {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.navbar-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.4);
+    transition: .25s;
+}
+
+.profile-avatar:hover .navbar-avatar {
+    transform: scale(1.08);
+    border-color: #38bdf8;
+}
+
+.profile-icon {
+    font-size: 30px;
 }

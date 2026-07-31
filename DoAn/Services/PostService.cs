@@ -1,7 +1,9 @@
 using DoAn.Data;
 using DoAn.Models;
+using DoAn.Models.Enums;
 using DoAn.ViewModels.Post;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace DoAn.Services;
 
@@ -103,26 +105,67 @@ public class PostService
         return await GetProfilePostsAsync(userId, userId);
     }
 
-    private IQueryable<FeedPostViewModel> BuildFeedQuery(int currentUserId)
+    private IQueryable<FeedPostViewModel> BuildFeedQuery(
+    int currentUserId)
     {
         return _context.Posts
             .AsNoTracking()
-            .Where(post => !post.IsDeleted && !post.IsHidden)
+            .Where(post =>
+                !post.IsDeleted &&
+                !post.IsHidden &&
+
+                (
+                    // Bài công khai: mọi người xem được.
+                    post.Visibility == PostVisibility.Public ||
+
+                    // Chủ bài viết luôn xem được bài của mình.
+                    post.UserId == currentUserId ||
+
+                    // Bài bạn bè: chỉ người đã kết bạn mới xem được.
+                    (
+                        post.Visibility == PostVisibility.Friends &&
+                        currentUserId > 0 &&
+                        _context.Friends.Any(friend =>
+                            friend.UserId == currentUserId &&
+                            friend.FriendId == post.UserId)
+                    )
+                ))
             .Select(post => new FeedPostViewModel
             {
                 Id = post.Id,
                 UserId = post.UserId,
-                FullName = post.User != null ? post.User.FullName : "Người dùng",
-                AvatarUrl = post.User != null ? post.User.AvatarUrl : null,
+
+                FullName = post.User != null
+                    ? post.User.FullName
+                    : "Người dùng",
+
+                AvatarUrl = post.User != null
+                    ? post.User.AvatarUrl
+                    : null,
+
                 Content = post.Content,
                 CreatedAt = post.CreatedAt,
                 UpdatedAt = post.UpdatedAt,
-                LikeCount = _context.Likes.Count(like => like.PostId == post.Id),
-                CommentCount = _context.Comments.Count(comment =>
-                    comment.PostId == post.Id && !comment.IsDeleted),
-                IsLikedByCurrentUser = currentUserId > 0 && _context.Likes.Any(like =>
-                    like.PostId == post.Id && like.UserId == currentUserId),
-                IsOwner = currentUserId > 0 && post.UserId == currentUserId,
+                Visibility = post.Visibility,
+
+                LikeCount = _context.Likes.Count(
+                    like => like.PostId == post.Id),
+
+                CommentCount = _context.Comments.Count(
+                    comment =>
+                        comment.PostId == post.Id &&
+                        !comment.IsDeleted),
+
+                IsLikedByCurrentUser =
+                    currentUserId > 0 &&
+                    _context.Likes.Any(like =>
+                        like.PostId == post.Id &&
+                        like.UserId == currentUserId),
+
+                IsOwner =
+                    currentUserId > 0 &&
+                    post.UserId == currentUserId,
+
                 MediaItems = post.MediaItems
                     .OrderBy(media => media.DisplayOrder)
                     .Select(media => new PostMediaViewModel

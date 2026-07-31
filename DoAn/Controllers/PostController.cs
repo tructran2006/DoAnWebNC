@@ -53,6 +53,7 @@ public class PostController : Controller
         {
             UserId = GetCurrentUserId(),
             Content = model.Content.Trim(),
+            Visibility = model.Visibility,
             CreatedAt = DateTime.UtcNow,
             IsDeleted = false,
             IsHidden = false
@@ -101,15 +102,18 @@ public class PostController : Controller
         {
             Id = post.Id,
             Content = post.Content,
+            Visibility = post.Visibility,
+
             CurrentMedia = post.MediaItems
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => new PostMediaViewModel
-                {
-                    Id = x.Id,
-                    MediaUrl = x.MediaUrl,
-                    MediaType = x.MediaType,
-                    DisplayOrder = x.DisplayOrder
-                }).ToList()
+        .OrderBy(media => media.DisplayOrder)
+        .Select(media => new PostMediaViewModel
+        {
+            Id = media.Id,
+            MediaUrl = media.MediaUrl,
+            MediaType = media.MediaType,
+            DisplayOrder = media.DisplayOrder
+        })
+        .ToList()
         });
     }
 
@@ -170,7 +174,7 @@ public class PostController : Controller
         // Không tạo Post mới nên PostId không thay đổi. Vì PostId giữ nguyên,
         // toàn bộ Likes và Comments trước đó vẫn liên kết với bài viết này.
         post.Content = model.Content.Trim();
-
+        post.Visibility = model.Visibility;
         // Xóa những PostMedia được người dùng chọn.
         // Thao tác này chỉ tác động bảng PostMedia, không tác động Likes/Comments.
         foreach (var media in removableMedia)

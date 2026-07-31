@@ -1,4 +1,9 @@
 @using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+
+@inject DoAn.Services.NotificationService NotificationService
+@inject DoAn.Data.AppDbContext DbContext
+
 @inject DoAn.Services.NotificationService NotificationService
 @{
     var layoutUserId = 0;
@@ -6,6 +11,17 @@
     var layoutUnreadCount = layoutUserId > 0
         ? await NotificationService.GetUnreadCountAsync(layoutUserId)
         : 0;
+
+    string? avatarUrl = null;
+
+    if (layoutUserId > 0)
+    {
+        avatarUrl = await DbContext.Users
+            .AsNoTracking()
+            .Where(x => x.Id == layoutUserId)
+            .Select(x => x.AvatarUrl)
+            .FirstOrDefaultAsync();
+    }
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -44,13 +60,15 @@
 
     <header class="topbar">
 
-        <div class="logo">
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="logo">
 
             <i class="bi bi-chat-heart-fill"></i>
 
             <span>Social</span>
 
-        </div>
+        </a>
 
         <form asp-controller="Search"
               asp-action="Index"
@@ -95,9 +113,21 @@
             </button>
 
             <a asp-controller="Profile"
-               asp-action="Index">
+               asp-action="Index"
+               asp-route-id="@layoutUserId"
+               class="profile-avatar"
+               title="Hồ sơ của tôi">
 
-                <i class="bi bi-person-circle profile-icon"></i>
+                @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                {
+                    <img src="@avatarUrl"
+                         alt="Ảnh đại diện"
+                         class="navbar-avatar" />
+                }
+                else
+                {
+                    <i class="bi bi-person-circle profile-icon"></i>
+                }
 
             </a>
 
@@ -132,7 +162,8 @@
             </a>
 
             <a asp-controller="Profile"
-               asp-action="Index">
+               asp-action="Index"
+               asp-route-id="@layoutUserId">
 
                 <i class="bi bi-person-badge-fill"></i>
 

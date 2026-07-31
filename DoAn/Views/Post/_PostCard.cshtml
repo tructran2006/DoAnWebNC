@@ -1,4 +1,5 @@
 @model DoAn.ViewModels.Post.FeedPostViewModel
+@using DoAn.Models.Enums
 <article class="social-post-card" id="post-card-@Model.Id">
     <header class="social-post-header">
         <a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId" class="social-post-avatar-link">
@@ -12,8 +13,30 @@ else
                 <span class="social-post-avatar-fallback"><i class="bi bi-person-fill"></i></span>
             }
         </a>
+        
         <div class="social-post-user"><a asp-controller="Profile" asp-action="Index" asp-route-id="@Model.UserId" class="social-post-name">@(string.IsNullOrWhiteSpace(Model.FullName) ? "Người dùng" : Model.FullName)</a><div class="social-post-date"><i class="bi bi-clock"></i><span>@(Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</span>@if(Model.UpdatedAt.HasValue){
-        <span>· Đã chỉnh sửa</span>
+                <span class="post-visibility">
+
+                    @switch (Model.Visibility)
+                    {
+                        case PostVisibility.Public:
+                            <i class="bi bi-globe-asia-australia"
+                               title="Công khai"></i>
+                            break;
+
+                        case PostVisibility.Friends:
+                            <i class="bi bi-people-fill"
+                               title="Bạn bè"></i>
+                            break;
+
+                        case PostVisibility.Private:
+                            <i class="bi bi-lock-fill"
+                               title="Riêng tư"></i>
+                            break;
+                    }
+
+                </span>
+            <span>· Đã chỉnh sửa</span>
                 }
 </div></div>
         @if (Model.IsOwner)

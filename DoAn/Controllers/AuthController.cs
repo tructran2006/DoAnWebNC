@@ -310,16 +310,6 @@ public class AuthController : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    // =========================================================
-    // FORGOT PASSWORD
-    // =========================================================
-
-    [AllowAnonymous]
-    [HttpGet]
-    public IActionResult ForgotPassword()
-    {
-        return View();
-    }
 
     // =========================================================
     // LOGOUT

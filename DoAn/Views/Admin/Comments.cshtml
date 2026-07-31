@@ -113,14 +113,20 @@
 
                         <td>
 
-                            <a asp-action="DeleteComment"
-                               asp-route-id="@item.Id"
-                               class="admin-btn btn-danger"
-                               onclick="return confirm('Xóa bình luận này?')">
+                            <form asp-action="DeleteComment"
+                                  asp-route-id="@item.Id"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Bạn có chắc muốn xóa bình luận này?');">
 
-                                Xóa
+                                @Html.AntiForgeryToken()
 
-                            </a>
+                                <button type="submit"
+                                        class="admin-btn btn-danger">
+                                    Xóa
+                                </button>
+
+                            </form>
 
                         </td>
 

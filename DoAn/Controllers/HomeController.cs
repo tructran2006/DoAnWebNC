@@ -41,24 +41,35 @@ public class HomeController : Controller
             .ToListAsync();
         //lấy bài viết nổi bật
         var topPosts = await _context.Posts
-            .AsNoTracking()
-            .Where(post =>
-                !post.IsDeleted &&
-                !post.IsHidden)
-            .Select(post => new FeaturedPostViewModel
-            {
-                Id = post.Id,
+     .AsNoTracking()
+     .Where(post =>
+         !post.IsDeleted &&
+         !post.IsHidden &&
+         (
+             post.Visibility == PostVisibility.Public ||
+             post.UserId == currentUserId ||
+             (
+                 post.Visibility == PostVisibility.Friends &&
+                 currentUserId > 0 &&
+                 _context.Friends.Any(friend =>
+                     (friend.UserId == currentUserId &&
+                      friend.FriendId == post.UserId) ||
+                     (friend.UserId == post.UserId &&
+                      friend.FriendId == currentUserId))
+             )
+         ))
+     .Select(post => new FeaturedPostViewModel
+     {
+         Id = post.Id,
+         Content = post.Content,
 
-                Content = post.Content,
-
-                LikeCount = _context.Likes.Count(
-                    like => like.PostId == post.Id)
-            })
-            //Sắp xếp lượt like
-            .OrderByDescending(post => post.LikeCount)
-            .ThenByDescending(post => post.Id)
-            .Take(4)
-            .ToListAsync();
+         LikeCount = _context.Likes.Count(
+             like => like.PostId == post.Id)
+     })
+     .OrderByDescending(post => post.LikeCount)
+     .ThenByDescending(post => post.Id)
+     .Take(4)
+     .ToListAsync();
         //gộp dữ liệu truyền sang view
         var model = new HomeViewModel
         {

@@ -1,43 +1,213 @@
 @model DoAn.ViewModels.Post.CreatePostViewModel
-@{ ViewData["Title"] = "Tạo bài viết"; }
-<link rel="stylesheet" href="~/css/post.css" asp-append-version="true" />
+@using DoAn.Models.Enums
+
+@{
+    ViewData["Title"] = "Tạo bài viết";
+}
+
+<link rel="stylesheet"
+      href="~/css/post.css"
+      asp-append-version="true" />
+
 <div class="post-page post-form-page">
+
     <section class="post-form-card">
+
         <header class="post-page-header">
-            <div class="post-page-heading"><span class="post-page-icon"><i class="bi bi-pencil-square"></i></span><div><h1>Tạo bài viết mới</h1><p>Bạn có thể chọn tối đa 10 ảnh hoặc video.</p></div></div>
-            <a asp-controller="Home" asp-action="Index" class="post-back-button"><i class="bi bi-arrow-left"></i>Quay lại</a>
+
+            <div class="post-page-heading">
+
+                <span class="post-page-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </span>
+
+                <div>
+                    <h1>Tạo bài viết mới</h1>
+                    <p>
+                        Chia sẻ nội dung với mọi người,
+                        bạn bè hoặc chỉ riêng bạn.
+                    </p>
+                </div>
+
+            </div>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="post-back-button">
+
+                <i class="bi bi-arrow-left"></i>
+                Quay lại
+
+            </a>
+
         </header>
-        <form asp-action="Create" method="post" enctype="multipart/form-data" class="post-form">
+
+        <form asp-controller="Post"
+              asp-action="Create"
+              method="post"
+              enctype="multipart/form-data"
+              class="post-form">
+
             @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="post-validation-summary"></div>
-            <div class="post-form-group">
-                <label asp-for="Content" class="post-form-label"><i class="bi bi-chat-left-text"></i>Nội dung</label>
-                <textarea asp-for="Content" rows="7" class="post-form-control post-content-input" placeholder="Bạn đang nghĩ gì?"></textarea>
-                <span asp-validation-for="Content" class="text-danger"></span>
+
+            <div asp-validation-summary="ModelOnly"
+                 class="post-validation-summary">
             </div>
+
             <div class="post-form-group">
-                <label class="post-form-label"><i class="bi bi-images"></i>Ảnh và video</label>
-                <label for="mediaFiles" class="post-upload-box">
-                    <span class="post-upload-icon"><i class="bi bi-cloud-arrow-up"></i></span>
-                    <strong>Chọn nhiều ảnh hoặc video</strong>
-                    <small>Giữ Ctrl để chọn nhiều file, tối đa 10 file và 50 MB/file.</small>
-                    <input asp-for="MediaFiles" id="mediaFiles" type="file" multiple accept="image/*,video/*" class="post-file-input" />
+
+                <label asp-for="Content"
+                       class="post-form-label">
+
+                    <i class="bi bi-chat-left-text"></i>
+                    Nội dung
+
                 </label>
-                <span asp-validation-for="MediaFiles" class="text-danger"></span>
+
+                <textarea asp-for="Content"
+                          rows="7"
+                          class="post-form-control post-content-input"
+                          placeholder="Bạn đang nghĩ gì?"></textarea>
+
+                <span asp-validation-for="Content"
+                      class="text-danger">
+                </span>
+
             </div>
-            <div id="mediaPreview" class="multi-media-preview"></div>
-            <div class="post-form-actions"><a asp-controller="Home" asp-action="Index" class="post-secondary-button">Hủy</a><button type="submit" class="post-primary-button"><i class="bi bi-send-fill"></i>Đăng bài</button></div>
+
+            <div class="post-form-group">
+
+                <label asp-for="Visibility"
+                       class="post-form-label">
+
+                    <i class="bi bi-shield-lock"></i>
+                    Quyền riêng tư
+
+                </label>
+
+                <select asp-for="Visibility"
+                        class="post-form-control">
+
+                    <option value="@PostVisibility.Public">
+                        🌍 Công khai – Mọi người đều có thể xem
+                    </option>
+
+                    <option value="@PostVisibility.Friends">
+                        👥 Bạn bè – Chỉ bạn bè có thể xem
+                    </option>
+
+                    <option value="@PostVisibility.Private">
+                        🔒 Riêng tư – Chỉ mình tôi
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="Visibility"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="post-form-group">
+
+                <label class="post-form-label">
+
+                    <i class="bi bi-images"></i>
+                    Ảnh và video
+
+                </label>
+
+                <label for="mediaFiles"
+                       class="post-upload-box">
+
+                    <span class="post-upload-icon">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </span>
+
+                    <strong>Chọn nhiều ảnh hoặc video</strong>
+
+                    <small>
+                        Tối đa 10 file và 50 MB cho mỗi file.
+                    </small>
+
+                    <input asp-for="MediaFiles"
+                           id="mediaFiles"
+                           type="file"
+                           multiple
+                           accept="image/*,video/*"
+                           class="post-file-input" />
+
+                </label>
+
+                <span asp-validation-for="MediaFiles"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div id="mediaPreview"
+                 class="multi-media-preview">
+            </div>
+
+            <div class="post-form-actions">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="post-secondary-button">
+                    Hủy
+                </a>
+
+                <button type="submit"
+                        class="post-primary-button">
+
+                    <i class="bi bi-send-fill"></i>
+                    Đăng bài
+
+                </button>
+
+            </div>
+
         </form>
+
     </section>
+
 </div>
+
 @section Scripts {
-<partial name="_ValidationScriptsPartial" />
-<script>
-(() => {
- const input=document.getElementById('mediaFiles'), preview=document.getElementById('mediaPreview');
- input?.addEventListener('change',()=>{ preview.innerHTML=''; const files=[...(input.files||[])]; if(files.length>10){alert('Chỉ được chọn tối đa 10 file.'); input.value=''; return;}
- files.forEach(file=>{const url=URL.createObjectURL(file), item=document.createElement('div'); item.className='multi-preview-item';
- item.innerHTML=file.type.startsWith('video/')?`<video src="${url}" controls></video><span>${file.name}</span>`:`<img src="${url}" alt=""><span>${file.name}</span>`; preview.appendChild(item);});
- });
-})();
-</script> }
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const input = document.getElementById("mediaFiles");
+            const preview = document.getElementById("mediaPreview");
+
+            input?.addEventListener("change", () => {
+                preview.innerHTML = "";
+
+                const files = [...(input.files || [])];
+
+                if (files.length > 10) {
+                    alert("Chỉ được chọn tối đa 10 file.");
+                    input.value = "";
+                    return;
+                }
+
+                files.forEach(file => {
+                    const url = URL.createObjectURL(file);
+                    const item = document.createElement("div");
+
+                    item.className = "multi-preview-item";
+
+                    item.innerHTML = file.type.startsWith("video/")
+                        ? `<video src="${url}" controls></video>
+                           <span>${file.name}</span>`
+                        : `<img src="${url}" alt="">
+                           <span>${file.name}</span>`;
+
+                    preview.appendChild(item);
+                });
+            });
+        })();
+    </script>
+}

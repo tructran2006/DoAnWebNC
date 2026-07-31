@@ -1,4 +1,5 @@
 ﻿@model DoAn.ViewModels.Admin.EditPostViewModel
+@using DoAn.Models.Enums
 
 @{
     ViewData["Title"] = "Chỉnh sửa bài viết";
@@ -60,7 +61,33 @@
             </span>
 
         </div>
+        <label asp-for="Visibility"
+               class="form-label">
+            Quyền riêng tư
+        </label>
 
+        <select asp-for="Visibility"
+                class="form-select">
+
+            <option value="@PostVisibility.Public">
+                Công khai
+            </option>
+
+            <option value="@PostVisibility.Friends">
+                Bạn bè
+            </option>
+
+            <option value="@PostVisibility.Private">
+                Riêng tư
+            </option>
+
+        </select>
+
+        <span asp-validation-for="Visibility"
+              class="text-danger">
+        </span>
+
+        </div>
         <div class="admin-post-status-options">
 
             <label class="admin-checkbox-card">

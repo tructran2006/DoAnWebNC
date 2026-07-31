@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DoAn.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace DoAn.ViewModels.Admin;
 
@@ -12,6 +13,10 @@ public class EditPostViewModel
         ErrorMessage = "Nội dung không được vượt quá 5000 ký tự.")]
     [Display(Name = "Nội dung")]
     public string Content { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Quyền riêng tư")]
+    public PostVisibility Visibility { get; set; }
 
     [Display(Name = "Ẩn bài viết")]
     public bool IsHidden { get; set; }

@@ -111,13 +111,10 @@ public class FriendController : Controller
     // LỜI MỜI KẾT BẠN
     // ==========================
 
-    public async Task<IActionResult> Requests()
+    [HttpGet]
+    public IActionResult Requests()
     {
-        var requests =
-            await _friendService.GetPendingRequestsAsync(
-                GetCurrentUserId());
-
-        return View(requests);
+        return RedirectToAction(nameof(Friends));
     }
 
     // ==========================
@@ -133,12 +130,12 @@ public class FriendController : Controller
         if (receiverId != currentUserId)
         {
             await _friendService.SendRequestAsync(
-     currentUserId,
-     receiverId);
+                currentUserId,
+                receiverId);
 
             var sender = await _context.Users
-    .AsNoTracking()
-    .FirstOrDefaultAsync(x => x.Id == currentUserId);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == currentUserId);
 
             string senderName =
                 string.IsNullOrWhiteSpace(sender?.FullName)
@@ -151,14 +148,13 @@ public class FriendController : Controller
                 type: "FriendRequest",
                 referenceId: currentUserId,
                 message: $"{senderName} đã gửi lời mời kết bạn.",
-                url: "/Friend/Requests");
+                url: "/Friend/Friends");
         }
 
         return RedirectToAction(
             "Index",
             "Profile",
             new { id = receiverId });
-
     }
 
     // ==========================
